@@ -51,7 +51,7 @@ function Widget({ id, title, column, control }: (typeof WIDGETS)[number]) {
 export default function DashboardPage() {
   return (
     <div>
-      <h1 className="mb-5 text-xl font-semibold text-navy">FI Statistics</h1>
+      <h1 className="mb-5 text-xl font-semibold text-navy">Dashboard</h1>
       <div className={`${PANEL} grid gap-5 lg:grid-cols-2`}>
         {WIDGETS.map((w) => <Widget key={w.id} {...w} />)}
       </div>
