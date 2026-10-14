@@ -210,7 +210,8 @@ export function Modal({ open, title, onClose, children, width = "32rem" }: {
     if (!open && ref.current?.open) ref.current.close();
   }, [open]);
   return (
-    <dialog ref={ref} onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}
+    // Only report user-initiated closes (✕, Esc, backdrop) — closing because `open` went false must not close the next dialog.
+    <dialog ref={ref} onClose={() => { if (open) onClose(); }} onClick={(e) => e.target === ref.current && onClose()}
       style={{ width: `min(${width}, calc(100% - 2rem))` }}
       className="m-auto rounded-md bg-white p-0 backdrop:bg-night/50">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate/20 bg-white px-5 py-4">
