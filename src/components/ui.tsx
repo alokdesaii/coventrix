@@ -61,8 +61,8 @@ export function TableCard({ title, controls, columns, rows, empty = "No data fou
   const align = (c: Column) => (c.numeric ? "text-right" : "text-left");
   return (
     <section className="flex flex-col rounded-md border border-slate/25 bg-white">
-      <header className="flex min-h-16 items-center gap-3 border-b border-slate/20 px-5 py-3">
-        <h2 className="mr-auto text-[15px] font-semibold text-navy">{title}</h2>
+      <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-slate/20 px-5 py-3">
+        <h2 className="min-w-40 flex-1 text-[15px] font-semibold text-navy">{title}</h2>
         {controls}
       </header>
       <div className={scroll ? "max-h-[26rem] overflow-y-auto" : undefined}>
