@@ -7,7 +7,7 @@ import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Modal, PageHeader, Segmented } from "@/components/ui";
+import { Modal, PageHeader, Segmented, Select } from "@/components/ui";
 import {
   createAppointment, deleteAppointment, listAppointments, saveMinutes,
   type Appointment, type MeetingMode, type MinutesOfMeeting,
@@ -73,14 +73,12 @@ function CreateEventForm({ initialStart, mode, onCreated, onCancel }: {
         <Label text="Start Date & Time"><input type="datetime-local" className={field} value={f.start} onChange={(e) => set("start", e.target.value)} /></Label>
         <Label text="End Date & Time"><input type="datetime-local" className={field} value={f.end} min={f.start} onChange={(e) => set("end", e.target.value)} /></Label>
         <Label text="Time Zone">
-          <select className={field} value={f.timeZone} onChange={(e) => set("timeZone", e.target.value)}>
-            {TIME_ZONES.map((z) => <option key={z}>{z}</option>)}
-          </select>
+          <Select label="Time Zone" className="[&_select]:h-10 [&_select]:text-sm" value={f.timeZone} onChange={(v) => set("timeZone", v)}
+            options={TIME_ZONES.map((z) => ({ value: z, label: z }))} />
         </Label>
         <Label text="Meeting Type">
-          <select className={field} value={f.mode} onChange={(e) => set("mode", e.target.value)}>
-            <option>Online</option><option>Offline</option>
-          </select>
+          <Select label="Meeting Type" className="[&_select]:h-10 [&_select]:text-sm" value={f.mode} onChange={(v) => set("mode", v)}
+            options={[{ value: "Online", label: "Online" }, { value: "Offline", label: "Offline" }]} />
         </Label>
       </div>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}

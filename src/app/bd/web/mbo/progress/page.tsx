@@ -102,11 +102,9 @@ function CountItems({ unit, items, setItems, period, error }: {
             <input className={`${field} ${border(errs.name)}`} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
           </Label>
           <Label text="Type" required>
-            <select className={`${field} border-slate/40`} value={draft.classification}
-              onChange={(e) => setDraft({ ...draft, classification: e.target.value as CountItem["classification"] })}>
-              <option value="net-new">Net new</option>
-              <option value="deepened">Materially deepened / progressed</option>
-            </select>
+            <Select label="Type" className="[&_select]:h-10 [&_select]:text-sm" value={draft.classification}
+              onChange={(v) => setDraft({ ...draft, classification: v })}
+              options={[{ value: "net-new", label: "Net new" }, { value: "deepened", label: "Materially deepened / progressed" }]} />
           </Label>
           <Label text="Qualifying event date" required error={errs.eventDate} hint="Onboarding, activation or material progression.">
             <input type="date" className={`${field} ${border(errs.eventDate)}`} max={today()} min={`${period}-01-01`}
@@ -272,9 +270,8 @@ function UpdateForm({ d, period }: { d: ObjectiveDetail; period: string }) {
             {(kind === "criteria" || kind === "leadership") && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Label text="Agreed commitment" required error={e.commitment}>
-                  <select className={`${field} ${border(e.commitment)}`} aria-invalid={!!e.commitment} value={commitment} onChange={(x) => setCommitment(x.target.value)}>
-                    {d.target.commitments.map((c) => <option key={c}>{c}</option>)}
-                  </select>
+                  <Select label="Agreed commitment" className="[&_select]:h-10 [&_select]:text-sm" invalid={!!e.commitment} value={commitment} onChange={setCommitment}
+                    options={d.target.commitments.map((c) => ({ value: c, label: c }))} />
                 </Label>
                 <Label text="Activity date" required error={e.activityDate}>
                   <input type="date" className={`${field} ${border(e.activityDate)}`} aria-invalid={!!e.activityDate}
@@ -324,10 +321,8 @@ function UpdateForm({ d, period }: { d: ObjectiveDetail; period: string }) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Label text="Source record type">
-                <select className={`${field} border-slate/40`} value={sourceType} onChange={(x) => setSourceType(x.target.value)}>
-                  <option value="">Select type</option>
-                  {SOURCE_TYPES[kind].map((t) => <option key={t}>{t}</option>)}
-                </select>
+                <Select label="Source record type" className="[&_select]:h-10 [&_select]:text-sm" value={sourceType} onChange={setSourceType}
+                  options={[{ value: "", label: "Select type" }, ...SOURCE_TYPES[kind].map((t) => ({ value: t, label: t }))]} />
               </Label>
               <Label text="Record reference / link" hint="CRM ID, register reference or document link.">
                 <input className={`${field} border-slate/40`} value={reference} onChange={(x) => setReference(x.target.value)} />

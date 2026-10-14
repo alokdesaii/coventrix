@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Chip, escalationSla } from "@/components/mbo";
-import { BackButton, Label, PageHeader, PANEL, useRows } from "@/components/ui";
+import { BackButton, Label, PageHeader, PANEL, Select, useRows } from "@/components/ui";
 import { defaultL4, getCurrentUserId, getEscalation, getMyMbo, L4_RECIPIENTS, recipientsFor, saveEscalation, type Escalation, type Objective } from "@/lib/api/mbo";
 import { CATEGORY_LABEL, isMaterialVariance, slaDueDate, VARIANCE_THRESHOLD, variancePct, type EscalationCategory } from "@/lib/mbo-sla";
 
@@ -169,10 +169,8 @@ function EscalationForm({ initial, objectives, period }: { initial: Form; object
                   value={f.title} onChange={(x) => set("title", x.target.value)} />
               </Label>
               <Label text="Linked objective">
-                <select className={`${field} border-slate/40`} value={f.objectiveId ?? ""} onChange={(x) => set("objectiveId", x.target.value || undefined)}>
-                  <option value="">Not linked to an objective</option>
-                  {objectives.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
-                </select>
+                <Select label="Linked objective" className="[&_select]:h-10 [&_select]:text-sm" value={f.objectiveId ?? ""} onChange={(v) => set("objectiveId", v || undefined)}
+                  options={[{ value: "", label: "Not linked to an objective" }, ...objectives.map((o) => ({ value: o.id, label: o.title }))]} />
               </Label>
               <Label text="Date discovered" required error={e.discovered}>
                 <input type="date" max={today()} className={`${field} ${border(e.discovered)}`} aria-invalid={!!e.discovered}
