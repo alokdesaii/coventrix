@@ -1,3 +1,4 @@
+import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -33,7 +34,8 @@ export const routes: Routes = [
       { path: 'web/mbo/team', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/team.component').then((m) => m.TeamComponent) },
       { path: 'web/mbo/review', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/review.component').then((m) => m.ReviewComponent) },
       { path: 'web/mbo/results', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/results.component').then((m) => m.ResultsComponent) },
-      { path: 'web/mbo/framework', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/framework.component').then((m) => m.MboFrameworkComponent) },
+      // MBO Framework: dev builds only (hidden on the deployed site).
+      ...(isDevMode() ? [{ path: 'web/mbo/framework', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/framework.component').then((m) => m.MboFrameworkComponent) }] : []),
       { path: 'web/appointment/calendar', title: 'Coventrix +', loadComponent: () => import('./bd/appointment/appointment.component').then((m) => m.AppointmentComponent) },
       { path: '**', redirectTo: 'dashboard' },
     ],

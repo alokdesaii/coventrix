@@ -1,3 +1,5 @@
+import { isDevMode } from "@angular/core";
+
 // BD portal sidebar, mirrored from the live menu (served by /api/menus/getuserwisemenumapping).
 export type NavIcon = "home" | "bank" | "briefcase" | "report" | "users" | "chart" | "flow" | "calendar" | "target" | "dot";
 export type NavItem = { label: string; icon: NavIcon; href?: string; children?: { label: string; href: string; disabled?: boolean }[] };
@@ -45,7 +47,8 @@ export const BD_NAV: NavItem[] = [
       { label: "Team MBO", href: `${B}/mbo/team` },
       { label: "Assign MBO Targets", href: `${B}/mbo/assign` },
       { label: "MBO Review", href: `${B}/mbo/review`, disabled: true },
-      { label: "MBO Framework", href: `${B}/mbo/framework` },
+      // Admin set-up screen: local dev builds only, hidden on the deployed site until it is ready to share.
+      ...(isDevMode() ? [{ label: "MBO Framework", href: `${B}/mbo/framework` }] : []),
     ],
   },
   { label: "Appointment", icon: "calendar", href: `${B}/appointment/calendar` },
