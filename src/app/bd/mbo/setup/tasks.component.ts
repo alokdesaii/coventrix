@@ -80,12 +80,12 @@ const GUIDE = {
             }
           </tbody>
           @if (rows?.length) {
-            <tfoot class="border-t-2 border-slate/30 bg-label/60 text-sm">
+            <tfoot class="bg-navy text-sm text-white">
               <tr>
-                <td colspan="3" class="py-3.5 pl-5 pr-3 font-semibold text-navy">Total weight</td>
+                <td colspan="3" class="py-3.5 pl-5 pr-3 font-semibold">Total weight</td>
                 <td class="px-3 py-3.5 text-right">
                   <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-bold tabular-nums"
-                    [class]="total() === 100 ? 'bg-teal/15 text-[#00857d]' : 'bg-amber-100 text-amber-800'">
+                    [class]="total() === 100 ? 'bg-white text-[#00857d]' : 'bg-amber-100 text-amber-800'">
                     @if (total() === 100) {
                       <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
                     } @else {
@@ -94,7 +94,7 @@ const GUIDE = {
                     {{ total() }}%
                   </span>
                 </td>
-                <td colspan="3" class="py-3.5 pl-3 pr-5 text-xs font-medium" [class]="total() === 100 ? 'text-[#00857d]' : 'text-amber-800'">
+                <td colspan="3" class="py-3.5 pl-3 pr-5 text-xs font-medium" [class]="total() === 100 ? 'text-white/85' : 'text-amber-200'">
                   {{ total() === 100 ? 'Weights add up to 100%.' : 'Weights should add up to 100% before targets are assigned.' }}
                 </td>
               </tr>
