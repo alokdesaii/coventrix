@@ -51,6 +51,12 @@ export const BD_NAV: NavItem[] = [
       ...(isDevMode() ? [{ label: "MBO Framework", href: `${B}/mbo/framework` }] : []),
     ],
   },
+  // Admin set-up (Panel only once the menu API exists): local dev builds only, hidden on the deployed site.
+  ...(isDevMode() ? [{
+    label: "MBO Setup", icon: "report" as NavIcon, children: [
+      { label: "MBO Tasks", href: `${B}/mbo/tasks` },
+    ],
+  }] : []),
   { label: "Appointment", icon: "calendar", href: `${B}/appointment/calendar` },
 ];
 
@@ -62,4 +68,6 @@ export const DETAIL_TITLES: Record<string, string> = {
   progress: "Update Progress & Evidence",
   escalations: "My Escalations",
   "escalations/new": "Raise Escalation",
+  "tasks/new": "Add MBO Task",
+  tasks: "Edit MBO Task",
 };

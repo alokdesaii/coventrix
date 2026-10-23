@@ -34,6 +34,12 @@ export const routes: Routes = [
       { path: 'web/mbo/team', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/team.component').then((m) => m.TeamComponent) },
       { path: 'web/mbo/review', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/review.component').then((m) => m.ReviewComponent) },
       { path: 'web/mbo/results', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/results.component').then((m) => m.ResultsComponent) },
+      // MBO setup (tasks → rating guides → examples): dev builds only until it's ready to share.
+      ...(isDevMode() ? [
+        { path: 'web/mbo/tasks', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/tasks.component').then((m) => m.MboTasksComponent) },
+        { path: 'web/mbo/tasks/new', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/task-form.component').then((m) => m.MboTaskFormComponent) },
+        { path: 'web/mbo/tasks/:role/:no', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/task-form.component').then((m) => m.MboTaskFormComponent) },
+      ] : []),
       // MBO Framework: dev builds only (hidden on the deployed site).
       ...(isDevMode() ? [{ path: 'web/mbo/framework', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/framework.component').then((m) => m.MboFrameworkComponent) }] : []),
       { path: 'web/appointment/calendar', title: 'Coventrix +', loadComponent: () => import('./bd/appointment/appointment.component').then((m) => m.AppointmentComponent) },

@@ -32,7 +32,9 @@ function breadcrumbs(nav: NavItem[], path: string): string[] {
   }
   // Detail pages: /bd/web/<section>/<page>/<id> -> parent menu item + DETAIL_TITLES entry.
   const [, , , section, page, sub] = path.split('/');
-  const parent = nav.find((n) => n.children?.some((c) => c.href.split('/')[3] === section));
+  // Prefer the group whose menu item this page sits under (e.g. /mbo/tasks/… → MBO Setup), else the section's first group.
+  const parent = nav.find((n) => n.children?.some((c) => path.startsWith(c.href + '/')))
+    ?? nav.find((n) => n.children?.some((c) => c.href.split('/')[3] === section));
   const title = DETAIL_TITLES[`${page}/${sub}`] ?? DETAIL_TITLES[page];
   if (parent && title) return ['Home', parent.label, title];
   return ['Home'];

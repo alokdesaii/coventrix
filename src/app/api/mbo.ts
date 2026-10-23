@@ -784,3 +784,45 @@ export async function saveFrameworkTask(t: FrameworkTask): Promise<void> {
   if (t.example) FRAMEWORK_EXAMPLES[t.role][o.id] = t.example;
   else delete FRAMEWORK_EXAMPLES[t.role][o.id];
 }
+
+// ---------- MBO setup: tasks → rating guides → framework examples ----------
+// ponytail: mock over ROLE_TEMPLATES; the backend keeps these as three linked tables.
+
+export type TaskRow = {
+  role: RoleId;
+  no: number;
+  objective: Objective;
+  /** Rating guide state: numeric tasks fall back to the framework default bands; commitment tasks need criteria. */
+  guide: "custom" | "default" | "missing";
+  hasExample: boolean;
+};
+
+const guideState = (o: Objective): TaskRow["guide"] =>
+  o.kind === "revenue" || o.kind === "count" ? (o.bands || o.ratingLabels ? "custom" : "default") : o.criteria ? "custom" : "missing";
+
+export async function listTasks(role: RoleId): Promise<TaskRow[]> {
+  await delay();
+  return ROLE_TEMPLATES[role].objectives.map((o, i) => ({
+    role, no: i + 1, objective: structuredClone(o), guide: guideState(o), hasExample: !!FRAMEWORK_EXAMPLES[role][o.id],
+  }));
+}
+
+/** Saves a task's definition at position `no`. Editing keeps the task's id, rating guide and example; adding inserts it. */
+export async function saveTask(role: RoleId, no: number, def: Objective, isNew: boolean): Promise<void> {
+  await delay();
+  const list = ROLE_TEMPLATES[role].objectives;
+  if (isNew) { list.splice(no - 1, 0, def); return; }
+  const cur = list[no - 1];
+  const typeChanged = (cur.kind === "revenue" || cur.kind === "count") !== (def.kind === "revenue" || def.kind === "count");
+  list[no - 1] = {
+    ...def, id: cur.id, ratingLabels: cur.ratingLabels,
+    // A switch between numeric and commitment invalidates the old rating guide.
+    ...(typeChanged ? {} : { bands: cur.bands, criteria: cur.criteria }),
+  };
+}
+
+export async function deleteTask(role: RoleId, no: number): Promise<void> {
+  await delay();
+  const [o] = ROLE_TEMPLATES[role].objectives.splice(no - 1, 1);
+  if (o) delete FRAMEWORK_EXAMPLES[role][o.id];
+}

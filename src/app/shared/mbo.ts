@@ -47,7 +47,9 @@ export function formatValue(o: Objective, n?: number) {
   selector: 'app-band-guide',
   standalone: true,
   template: `
-    @if (o.kind === 'criteria' || o.kind === 'leadership') {
+    @if ((o.kind === 'criteria' || o.kind === 'leadership') && !o.criteria) {
+      <p class="py-2 text-xs text-slate">Rating guide not set up yet for this objective.</p>
+    } @else if (o.kind === 'criteria' || o.kind === 'leadership') {
       <ol class="divide-y divide-slate/15 text-xs">
         @for (c of o.criteria; track i; let i = $index) {
           <li class="grid grid-cols-[1.25rem_1fr] gap-2 py-1.5"><span class="font-semibold text-navy">{{ 5 - i }}</span><span class="text-night/80">{{ c }}</span></li>
