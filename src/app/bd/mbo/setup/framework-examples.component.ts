@@ -4,14 +4,15 @@ import { listTasks, ROLE_TEMPLATES, type RoleId, type TaskRow } from '../../../a
 import { FRAMEWORK_EXAMPLES } from '../../../lib/mbo-examples';
 import { big } from '../../../shared/client-list.component';
 import { ChipComponent } from '../../../shared/mbo';
-import { PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
-import { guideSummary } from './rating-guides.component';
+import { ModalComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
+import { SetupViewComponent } from './setup-view.component';
+import { guideSummary } from './setup-shared';
 
 /** Step 3 of MBO setup: one framework example per rating guide. */
 @Component({
   selector: 'app-mbo-framework-examples',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent],
+  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent, ModalComponent, SetupViewComponent],
   template: `
     <app-page-header title="Framework Examples">
       <a routerLink="/bd/web/mbo/framework-examples/edit" [queryParams]="{ role }" class="flex h-9 items-center rounded bg-navy px-4 text-sm font-semibold text-white transition hover:bg-navy/90">+ Add framework example</a>
@@ -54,7 +55,8 @@ import { guideSummary } from './rating-guides.component';
                     @if (r.guide === 'missing') { <app-chip tone="bg-red-100 text-red-700">Rating guide needed</app-chip> }
                     @else { <app-chip [tone]="r.hasExample ? 'bg-teal/10 text-[#00857d]' : 'bg-mist text-slate'">{{ r.hasExample ? 'Set' : 'None' }}</app-chip> }
                   </td>
-                  <td class="py-3 pl-3 pr-5 text-right">
+                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                    <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     @if (r.guide === 'missing') {
                       <a routerLink="/bd/web/mbo/rating-guides/edit" [queryParams]="{ role, no: r.no }" class="inline-flex h-8 items-center whitespace-nowrap rounded px-3 text-xs font-semibold text-navy hover:bg-mist">Set up rating guide</a>
                     } @else {
@@ -68,12 +70,17 @@ import { guideSummary } from './rating-guides.component';
         </table>
       </div>
     </section>
+    <app-modal [open]="!!view" [title]="view?.objective?.title ?? ''" width="40rem" (closed)="view = null">
+      @if (view; as v) {
+        <app-setup-view [role]="role" [row]="v" focus="example" editLabel="Edit example" (closed)="view = null" (edit)="view = null; router.navigate(['/bd/web/mbo/framework-examples/edit'], { queryParams: { role, no: v.no } })" />
+      }
+    </app-modal>
   `,
 })
 export class MboFrameworkExamplesComponent implements OnInit {
   @Input('role') set roleIn(v: string | undefined) { if (v) this.role = v as RoleId; } // ?role=
 
-  private router = inject(Router);
+  readonly router = inject(Router);
   readonly panel = PANEL.replace('p-5', '');
   readonly big = big;
   readonly summary = guideSummary;
@@ -81,6 +88,7 @@ export class MboFrameworkExamplesComponent implements OnInit {
 
   role: RoleId = 'sales-rep';
   rows: TaskRow[] | null = null;
+  view: TaskRow | null = null;
   private req = 0;
 
   example = (r: TaskRow) => FRAMEWORK_EXAMPLES[this.role][r.objective.id]?.example.replace(/\s+/g, ' ');

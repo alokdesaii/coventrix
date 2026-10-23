@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { getExample, listTasks, ROLE_TEMPLATES, saveExample, type RoleId, type TaskRow } from '../../../api/mbo';
 import { BandGuideComponent } from '../../../shared/mbo';
 import { BackButtonComponent, LabelComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
-import { guideSummary } from './rating-guides.component';
+import { guideSummary } from './setup-shared';
 
 const field = 'h-10 w-full rounded border bg-white px-3 text-sm text-night outline-none placeholder:text-slate focus:border-teal focus:ring-2 focus:ring-teal/20';
 const area = 'w-full rounded border bg-white px-3 py-2 text-sm text-night outline-none placeholder:text-slate focus:border-teal focus:ring-2 focus:ring-teal/20';

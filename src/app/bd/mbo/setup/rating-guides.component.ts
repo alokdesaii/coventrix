@@ -1,10 +1,11 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { BANDS, listTasks, RATING_LABELS, ROLE_TEMPLATES, type RoleId, type TaskRow } from '../../../api/mbo';
+import { listTasks, ROLE_TEMPLATES, type RoleId, type TaskRow } from '../../../api/mbo';
 import { big } from '../../../shared/client-list.component';
 import { ChipComponent } from '../../../shared/mbo';
-import { PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
-import { TYPE_LABEL } from './tasks.component';
+import { ModalComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
+import { SetupViewComponent } from './setup-view.component';
+import { guideSummary, TYPE_LABEL } from './setup-shared';
 
 const GUIDE = {
   custom: { label: 'Custom', tone: 'bg-teal/10 text-[#00857d]' },
@@ -12,22 +13,11 @@ const GUIDE = {
   missing: { label: 'Not set up', tone: 'bg-red-100 text-red-700' },
 };
 
-/** One-line view of a task's rating guide: "120 / 110 / 100 / 85% of target", or the rating 3 criteria for Commitment tasks. */
-export function guideSummary(r: TaskRow): string {
-  const o = r.objective;
-  if (o.kind === 'revenue' || o.kind === 'count') {
-    const b = o.bands ?? BANDS[o.kind];
-    const labels = (o.ratingLabels ?? RATING_LABELS).some((l, i) => l !== RATING_LABELS[i]) ? ' · custom labels' : '';
-    return `${b.join(' / ')}% of target${labels}`;
-  }
-  return o.criteria ? `Criteria: "${o.criteria[2]}" for rating 3` : 'Rating guide not set up';
-}
-
 /** Step 2 of MBO setup: one rating guide per task. */
 @Component({
   selector: 'app-mbo-rating-guides',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent],
+  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent, ModalComponent, SetupViewComponent],
   template: `
     <app-page-header title="Rating Guides">
       <a routerLink="/bd/web/mbo/rating-guides/edit" [queryParams]="{ role }" class="flex h-9 items-center rounded bg-navy px-4 text-sm font-semibold text-white transition hover:bg-navy/90">+ Set up rating guide</a>
@@ -66,7 +56,8 @@ export function guideSummary(r: TaskRow): string {
                   <td class="whitespace-nowrap px-3 py-3">{{ typeLabel[r.objective.kind] }}</td>
                   <td class="px-3 py-3 text-xs text-night/80">{{ summary(r) }}</td>
                   <td class="px-3 py-3"><app-chip [tone]="guide[r.guide].tone">{{ guide[r.guide].label }}</app-chip></td>
-                  <td class="py-3 pl-3 pr-5 text-right">
+                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                    <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     <a routerLink="/bd/web/mbo/rating-guides/edit" [queryParams]="{ role, no: r.no }" class="inline-flex h-8 items-center whitespace-nowrap rounded px-3 text-xs font-semibold"
                       [class]="r.guide === 'missing' ? 'bg-navy text-white hover:bg-navy/90' : 'text-navy hover:bg-mist'">{{ r.guide === 'missing' ? 'Set up' : 'Edit' }}</a>
                   </td>
@@ -77,12 +68,17 @@ export function guideSummary(r: TaskRow): string {
         </table>
       </div>
     </section>
+    <app-modal [open]="!!view" [title]="view?.objective?.title ?? ''" width="40rem" (closed)="view = null">
+      @if (view; as v) {
+        <app-setup-view [role]="role" [row]="v" focus="guide" editLabel="Edit rating guide" (closed)="view = null" (edit)="view = null; router.navigate(['/bd/web/mbo/rating-guides/edit'], { queryParams: { role, no: v.no } })" />
+      }
+    </app-modal>
   `,
 })
 export class MboRatingGuidesComponent implements OnInit {
   @Input('role') set roleIn(v: string | undefined) { if (v) this.role = v as RoleId; } // ?role=
 
-  private router = inject(Router);
+  readonly router = inject(Router);
   readonly panel = PANEL.replace('p-5', '');
   readonly big = big;
   readonly typeLabel = TYPE_LABEL;
@@ -91,6 +87,7 @@ export class MboRatingGuidesComponent implements OnInit {
 
   role: RoleId = 'sales-rep';
   rows: TaskRow[] | null = null;
+  view: TaskRow | null = null;
   private req = 0;
 
   readonly summary = guideSummary;

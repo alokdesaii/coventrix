@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { BANDS, getRatingGuide, RATING_LABELS, ROLE_TEMPLATES, saveRatingGuide, type Objective, type RatingGuide, type RoleId } from '../../../api/mbo';
 import { BandGuideComponent } from '../../../shared/mbo';
 import { BackButtonComponent, LabelComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
-import { TYPE_LABEL } from './tasks.component';
+import { TYPE_LABEL } from './setup-shared';
 
 type Errors = Partial<Record<string, string>>;
 type Row = { label: string; mult: string; criteria: string };

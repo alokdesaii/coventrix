@@ -3,9 +3,10 @@ import { Router, RouterLink } from '@angular/router';
 import { listTasks, ROLE_TEMPLATES, type RoleId, type TaskRow } from '../../../api/mbo';
 import { big } from '../../../shared/client-list.component';
 import { ChipComponent } from '../../../shared/mbo';
-import { PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
+import { ModalComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
+import { SetupViewComponent } from './setup-view.component';
+import { TYPE_LABEL } from './setup-shared';
 
-export const TYPE_LABEL = { revenue: 'Amount', count: 'Count', criteria: 'Commitment', leadership: 'Commitment' } as const;
 const GUIDE = {
   custom: { label: 'Set', tone: 'bg-teal/10 text-[#00857d]' },
   default: { label: 'Framework default', tone: 'bg-label text-navy' },
@@ -16,7 +17,7 @@ const GUIDE = {
 @Component({
   selector: 'app-mbo-tasks',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent],
+  imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent, ModalComponent, SetupViewComponent],
   template: `
     <app-page-header title="MBO Tasks">
       @if (rows && rows.length < 5) {
@@ -62,7 +63,8 @@ const GUIDE = {
                   <td class="px-3 py-3 text-right font-semibold tabular-nums text-navy">{{ r.objective.weight }}%</td>
                   <td class="px-3 py-3"><app-chip [tone]="guide[r.guide].tone">{{ guide[r.guide].label }}</app-chip></td>
                   <td class="px-3 py-3"><app-chip [tone]="r.hasExample ? 'bg-teal/10 text-[#00857d]' : 'bg-mist text-slate'">{{ r.hasExample ? 'Set' : 'None' }}</app-chip></td>
-                  <td class="py-3 pl-3 pr-5 text-right">
+                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                    <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     <a [routerLink]="['/bd/web/mbo/tasks', role, r.no]" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">Edit</a>
                   </td>
                 </tr>
@@ -81,12 +83,17 @@ const GUIDE = {
         </table>
       </div>
     </section>
+    <app-modal [open]="!!view" [title]="view?.objective?.title ?? ''" width="40rem" (closed)="view = null">
+      @if (view; as v) {
+        <app-setup-view [role]="role" [row]="v" focus="task" editLabel="Edit task" (closed)="view = null" (edit)="view = null; router.navigate(['/bd/web/mbo/tasks', role, v.no])" />
+      }
+    </app-modal>
   `,
 })
 export class MboTasksComponent implements OnInit {
   @Input('role') set roleIn(v: string | undefined) { if (v) this.role = v as RoleId; } // ?role=
 
-  private router = inject(Router);
+  readonly router = inject(Router);
   readonly panel = PANEL.replace('p-5', '');
   readonly big = big;
   readonly typeLabel = TYPE_LABEL;
@@ -95,6 +102,7 @@ export class MboTasksComponent implements OnInit {
 
   role: RoleId = 'sales-rep';
   rows: TaskRow[] | null = null;
+  view: TaskRow | null = null;
   private req = 0;
 
   code = (r: TaskRow) => r.objective.code ?? r.objective.id.toUpperCase().replace(/-/g, '_');
