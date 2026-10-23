@@ -55,7 +55,8 @@ import { guideSummary } from './setup-shared';
                     @if (r.guide === 'missing') { <app-chip tone="bg-red-100 text-red-700">Rating guide needed</app-chip> }
                     @else { <app-chip [tone]="r.hasExample ? 'bg-teal/10 text-[#00857d]' : 'bg-mist text-slate'">{{ r.hasExample ? 'Set' : 'None' }}</app-chip> }
                   </td>
-                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                  <!-- py-1.5: the h-8 buttons then centre on the first text line (rows are top-aligned) -->
+                  <td class="whitespace-nowrap py-1.5 pl-3 pr-5 text-right">
                     <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     @if (r.guide === 'missing') {
                       <a routerLink="/bd/web/mbo/rating-guides/edit" [queryParams]="{ role, no: r.no }" class="inline-flex h-8 items-center whitespace-nowrap rounded px-3 text-xs font-semibold text-navy hover:bg-mist">Set up rating guide</a>

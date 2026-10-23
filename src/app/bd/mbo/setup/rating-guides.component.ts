@@ -56,7 +56,8 @@ const GUIDE = {
                   <td class="whitespace-nowrap px-3 py-3">{{ typeLabel[r.objective.kind] }}</td>
                   <td class="px-3 py-3 text-xs text-night/80">{{ summary(r) }}</td>
                   <td class="px-3 py-3"><app-chip [tone]="guide[r.guide].tone">{{ guide[r.guide].label }}</app-chip></td>
-                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                  <!-- py-1.5: the h-8 buttons then centre on the first text line (rows are top-aligned) -->
+                  <td class="whitespace-nowrap py-1.5 pl-3 pr-5 text-right">
                     <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     <a routerLink="/bd/web/mbo/rating-guides/edit" [queryParams]="{ role, no: r.no }" class="inline-flex h-8 items-center whitespace-nowrap rounded px-3 text-xs font-semibold"
                       [class]="r.guide === 'missing' ? 'bg-navy text-white hover:bg-navy/90' : 'text-navy hover:bg-mist'">{{ r.guide === 'missing' ? 'Set up' : 'Edit' }}</a>

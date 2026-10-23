@@ -63,7 +63,8 @@ const GUIDE = {
                   <td class="px-3 py-3 text-right font-semibold tabular-nums text-navy">{{ r.objective.weight }}%</td>
                   <td class="px-3 py-3"><app-chip [tone]="guide[r.guide].tone">{{ guide[r.guide].label }}</app-chip></td>
                   <td class="px-3 py-3"><app-chip [tone]="r.hasExample ? 'bg-teal/10 text-[#00857d]' : 'bg-mist text-slate'">{{ r.hasExample ? 'Set' : 'None' }}</app-chip></td>
-                  <td class="whitespace-nowrap py-3 pl-3 pr-5 text-right">
+                  <!-- py-1.5: the h-8 buttons then centre on the first text line (rows are top-aligned) -->
+                  <td class="whitespace-nowrap py-1.5 pl-3 pr-5 text-right">
                     <button type="button" (click)="view = r" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">View</button>
                     <a [routerLink]="['/bd/web/mbo/tasks', role, r.no]" class="inline-flex h-8 items-center rounded px-3 text-xs font-semibold text-navy hover:bg-mist">Edit</a>
                   </td>
