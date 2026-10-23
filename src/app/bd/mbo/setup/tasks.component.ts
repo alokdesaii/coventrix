@@ -20,7 +20,11 @@ const GUIDE = {
   imports: [RouterLink, PageHeaderComponent, SelectComponent, ChipComponent, ModalComponent, SetupViewComponent],
   template: `
     <app-page-header title="MBO Tasks">
-      @if (rows && rows.length < 5) {
+      @if (full()) {
+        <!-- Always shown so it's findable; a role holds at most 5 tasks (objective no 1–5). -->
+        <span aria-disabled="true" title="This role already has 5 tasks. Delete one to add another."
+          class="flex h-9 cursor-not-allowed items-center rounded bg-navy/40 px-4 text-sm font-semibold text-white">+ Add MBO task</span>
+      } @else {
         <a routerLink="/bd/web/mbo/tasks/new" [queryParams]="{ role }" class="flex h-9 items-center rounded bg-navy px-4 text-sm font-semibold text-white transition hover:bg-navy/90">+ Add MBO task</a>
       }
     </app-page-header>
@@ -30,6 +34,9 @@ const GUIDE = {
         <div class="flex w-80 flex-col gap-1.5 text-xs font-medium text-slate">Role template
           <app-select [class]="big" label="Role template" [value]="role" (valueChange)="pickRole($event)" [options]="roleOpts" />
         </div>
+        @if (full()) {
+          <p class="rounded bg-amber-50 px-3 py-2 text-xs text-amber-900">{{ roleLabel() }} has 5 tasks, the framework maximum. Delete one to add another, or edit an existing one.</p>
+        }
         <p class="ml-auto max-w-md text-xs text-slate">Step 1 of 3. Each role has up to 5 tasks with fixed weights. Next: a rating guide per task, then a framework example per rating guide.</p>
       </div>
 
@@ -108,6 +115,8 @@ export class MboTasksComponent implements OnInit {
 
   code = (r: TaskRow) => r.objective.code ?? r.objective.id.toUpperCase().replace(/-/g, '_');
   unit = (r: TaskRow) => (r.objective.kind === 'count' ? ` · ${r.objective.unit}` : r.objective.kind === 'revenue' ? ` · ${r.objective.currency ?? 'HKD'}` : '');
+  full = () => !!this.rows && this.rows.length >= 5;
+  roleLabel = () => ROLE_TEMPLATES[this.role].label;
   total = () => +(this.rows ?? []).reduce((s, r) => s + r.objective.weight, 0).toFixed(2);
 
   ngOnInit() { this.load(); }
