@@ -39,6 +39,8 @@ export const routes: Routes = [
         { path: 'web/mbo/tasks', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/tasks.component').then((m) => m.MboTasksComponent) },
         { path: 'web/mbo/tasks/new', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/task-form.component').then((m) => m.MboTaskFormComponent) },
         { path: 'web/mbo/tasks/:role/:no', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/task-form.component').then((m) => m.MboTaskFormComponent) },
+        { path: 'web/mbo/rating-guides', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/rating-guides.component').then((m) => m.MboRatingGuidesComponent) },
+        { path: 'web/mbo/rating-guides/edit', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/rating-guide-form.component').then((m) => m.MboRatingGuideFormComponent) },
       ] : []),
       // MBO Framework: dev builds only (hidden on the deployed site).
       ...(isDevMode() ? [{ path: 'web/mbo/framework', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/framework.component').then((m) => m.MboFrameworkComponent) }] : []),

@@ -55,6 +55,7 @@ export const BD_NAV: NavItem[] = [
   ...(isDevMode() ? [{
     label: "MBO Setup", icon: "report" as NavIcon, children: [
       { label: "MBO Tasks", href: `${B}/mbo/tasks` },
+      { label: "Rating Guides", href: `${B}/mbo/rating-guides` },
     ],
   }] : []),
   { label: "Appointment", icon: "calendar", href: `${B}/appointment/calendar` },
@@ -70,4 +71,5 @@ export const DETAIL_TITLES: Record<string, string> = {
   "escalations/new": "Raise Escalation",
   "tasks/new": "Add MBO Task",
   tasks: "Edit MBO Task",
+  "rating-guides/edit": "Rating Guide",
 };

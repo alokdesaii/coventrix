@@ -826,3 +826,39 @@ export async function deleteTask(role: RoleId, no: number): Promise<void> {
   const [o] = ROLE_TEMPLATES[role].objectives.splice(no - 1, 1);
   if (o) delete FRAMEWORK_EXAMPLES[role][o.id];
 }
+
+export type RatingGuide = {
+  labels: [string, string, string, string, string];      // 5 → 1
+  bands?: [number, number, number, number];               // Amount / Count: lower bounds (% of target) for 5, 4, 3, 2
+  criteria?: [string, string, string, string, string];    // Commitment: 5 → 1
+};
+
+/** The task's rating guide as it applies today (framework defaults filled in for numeric tasks). */
+export async function getRatingGuide(role: RoleId, no: number): Promise<{ task: Objective; guide: RatingGuide; state: TaskRow["guide"] } | null> {
+  await delay();
+  const o = ROLE_TEMPLATES[role].objectives[no - 1];
+  if (!o) return null;
+  const numeric = o.kind === "revenue" || o.kind === "count";
+  return {
+    task: structuredClone(o),
+    state: guideState(o),
+    guide: {
+      labels: [...(o.ratingLabels ?? RATING_LABELS)] as RatingGuide["labels"],
+      ...(numeric ? { bands: [...(o.bands ?? BANDS[o.kind as "revenue" | "count"])] as RatingGuide["bands"] } : { criteria: o.criteria ? [...o.criteria] as RatingGuide["criteria"] : undefined }),
+    },
+  };
+}
+
+/** Saves the guide onto the task. Labels and bands equal to the framework defaults aren't stored, so they keep following the framework. */
+export async function saveRatingGuide(role: RoleId, no: number, g: RatingGuide): Promise<void> {
+  await delay();
+  const o = ROLE_TEMPLATES[role].objectives[no - 1];
+  const defaultLabels = g.labels.every((l, i) => l === RATING_LABELS[i]);
+  ROLE_TEMPLATES[role].objectives[no - 1] = {
+    ...o, ratingLabels: defaultLabels ? undefined : g.labels,
+    ...(o.kind === "revenue" || o.kind === "count"
+      // Bands equal to the framework default aren't stored either.
+      ? { bands: g.bands?.every((b, i) => b === BANDS[o.kind as "revenue" | "count"][i]) ? undefined : g.bands }
+      : { criteria: g.criteria }),
+  };
+}
