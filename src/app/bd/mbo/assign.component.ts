@@ -157,7 +157,7 @@ type Member = TeamMember & { status: Record<string, TargetStatus> };
           <app-select [class]="big" label="Review period" [value]="periodId" (valueChange)="periodId = $event; load()" [options]="periods" />
         </div>
         <div class="flex flex-col gap-1.5 text-xs font-medium text-slate">
-          <span class="flex items-baseline justify-between gap-2">Role template @if (dev) {<a routerLink="/bd/web/mbo/framework" class="font-semibold text-navy hover:underline">Edit framework →</a>}</span>
+          <span class="flex items-baseline justify-between gap-2">Role template @if (dev) {<a routerLink="/bd/web/mbo/tasks" [queryParams]="{ role: template()?.id }" class="font-semibold text-navy hover:underline">Edit MBO setup →</a>}</span>
           <div class="flex min-h-9 flex-col justify-center rounded bg-label/60 px-3 py-1.5">
             <span class="text-sm font-semibold text-navy">{{ template()?.label ?? '—' }}</span>
             @if (template(); as tpl) { <span class="text-xs font-normal text-night/70">{{ tpl.objectives.length }} objectives · 100% weight · weights fixed by framework</span> }
@@ -226,7 +226,7 @@ export class AssignComponent implements OnInit {
   readonly panel = PANEL;
   readonly big = big;
   readonly periods = PERIODS;
-  readonly dev = isDevMode(); // MBO Framework link: dev builds only
+  readonly dev = isDevMode(); // MBO Setup link: dev builds only
 
   memberId = 'u1';
   periodId = '2026';

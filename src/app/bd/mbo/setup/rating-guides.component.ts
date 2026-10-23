@@ -12,6 +12,17 @@ const GUIDE = {
   missing: { label: 'Not set up', tone: 'bg-red-100 text-red-700' },
 };
 
+/** One-line view of a task's rating guide: "120 / 110 / 100 / 85% of target", or the rating 3 criteria for Commitment tasks. */
+export function guideSummary(r: TaskRow): string {
+  const o = r.objective;
+  if (o.kind === 'revenue' || o.kind === 'count') {
+    const b = o.bands ?? BANDS[o.kind];
+    const labels = (o.ratingLabels ?? RATING_LABELS).some((l, i) => l !== RATING_LABELS[i]) ? ' · custom labels' : '';
+    return `${b.join(' / ')}% of target${labels}`;
+  }
+  return o.criteria ? `Criteria: "${o.criteria[2]}" for rating 3` : 'Rating guide not set up';
+}
+
 /** Step 2 of MBO setup: one rating guide per task. */
 @Component({
   selector: 'app-mbo-rating-guides',
@@ -82,16 +93,7 @@ export class MboRatingGuidesComponent implements OnInit {
   rows: TaskRow[] | null = null;
   private req = 0;
 
-  /** One-line view of the bands: "≥120 / 110 / 100 / 85%", or the labels' criteria count for Commitment tasks. */
-  summary = (r: TaskRow) => {
-    const o = r.objective;
-    if (o.kind === 'revenue' || o.kind === 'count') {
-      const b = o.bands ?? BANDS[o.kind];
-      const labels = (o.ratingLabels ?? RATING_LABELS).some((l, i) => l !== RATING_LABELS[i]) ? ' · custom labels' : '';
-      return `${b.join(' / ')}% of target${labels}`;
-    }
-    return o.criteria ? `Criteria: "${o.criteria[2]}" for rating 3` : '—';
-  };
+  readonly summary = guideSummary;
 
   ngOnInit() { this.load(); }
 

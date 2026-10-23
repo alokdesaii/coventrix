@@ -24,7 +24,7 @@ export type Objective = {
   /** Rating criteria text for criteria / leadership objectives, 5 → 1. */
   criteria?: [string, string, string, string, string];
   evidence: string;
-  /** Set on the MBO Framework screen; when absent the defaults below apply. */
+  /** Set on the MBO Setup pages; when absent the defaults below apply. */
   code?: string;                                           // e.g. PERSONAL_REVENUE
   bands?: [number, number, number, number];                // lower bounds (% of target) for ratings 5, 4, 3, 2
   ratingLabels?: [string, string, string, string, string]; // 5 → 1
@@ -760,31 +760,6 @@ export async function acknowledgeResults(period: string): Promise<string> {
 }
 
 
-// ---------- framework setup (MBO Framework screen) ----------
-// ponytail: edits the in-memory templates above; the backend owns the real framework table
-// (POST /api/mbotarget/addtask). RoleTemplate + objective number is the unique key.
-
-
-export type FrameworkTask = { role: RoleId; no: number; objective: Objective; example: FrameworkExample | null };
-
-export async function getFrameworkTask(role: RoleId, no: number): Promise<FrameworkTask | null> {
-  await delay();
-  const o = ROLE_TEMPLATES[role].objectives[no - 1];
-  return o ? { role, no, objective: structuredClone(o), example: FRAMEWORK_EXAMPLES[role][o.id] ? { ...FRAMEWORK_EXAMPLES[role][o.id] } : null } : null;
-}
-
-/** Adds the objective at position `no`, or replaces the one already there (keeping its id so existing targets still match). */
-export async function saveFrameworkTask(t: FrameworkTask): Promise<void> {
-  await delay();
-  const list = ROLE_TEMPLATES[t.role].objectives;
-  const existing = list[t.no - 1];
-  const o = { ...t.objective, id: existing?.id ?? t.objective.id };
-  if (existing) list[t.no - 1] = o;
-  else list.splice(t.no - 1, 0, o);
-  if (t.example) FRAMEWORK_EXAMPLES[t.role][o.id] = t.example;
-  else delete FRAMEWORK_EXAMPLES[t.role][o.id];
-}
-
 // ---------- MBO setup: tasks → rating guides → framework examples ----------
 // ponytail: mock over ROLE_TEMPLATES; the backend keeps these as three linked tables.
 
@@ -861,4 +836,19 @@ export async function saveRatingGuide(role: RoleId, no: number, g: RatingGuide):
       ? { bands: g.bands?.every((b, i) => b === BANDS[o.kind as "revenue" | "count"][i]) ? undefined : g.bands }
       : { criteria: g.criteria }),
   };
+}
+
+export async function getExample(role: RoleId, no: number): Promise<FrameworkExample | null> {
+  await delay();
+  const o = ROLE_TEMPLATES[role].objectives[no - 1];
+  const x = o && FRAMEWORK_EXAMPLES[role][o.id];
+  return x ? { ...x } : null;
+}
+
+/** Saves the example for the task's rating guide (1:1); null removes it. */
+export async function saveExample(role: RoleId, no: number, x: FrameworkExample | null): Promise<void> {
+  await delay();
+  const o = ROLE_TEMPLATES[role].objectives[no - 1];
+  if (x) FRAMEWORK_EXAMPLES[role][o.id] = x;
+  else delete FRAMEWORK_EXAMPLES[role][o.id];
 }

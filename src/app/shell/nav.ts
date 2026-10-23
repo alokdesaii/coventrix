@@ -47,8 +47,6 @@ export const BD_NAV: NavItem[] = [
       { label: "Team MBO", href: `${B}/mbo/team` },
       { label: "Assign MBO Targets", href: `${B}/mbo/assign` },
       { label: "MBO Review", href: `${B}/mbo/review`, disabled: true },
-      // Admin set-up screen: local dev builds only, hidden on the deployed site until it is ready to share.
-      ...(isDevMode() ? [{ label: "MBO Framework", href: `${B}/mbo/framework` }] : []),
     ],
   },
   // Admin set-up (Panel only once the menu API exists): local dev builds only, hidden on the deployed site.
@@ -56,6 +54,7 @@ export const BD_NAV: NavItem[] = [
     label: "MBO Setup", icon: "report" as NavIcon, children: [
       { label: "MBO Tasks", href: `${B}/mbo/tasks` },
       { label: "Rating Guides", href: `${B}/mbo/rating-guides` },
+      { label: "Framework Examples", href: `${B}/mbo/framework-examples` },
     ],
   }] : []),
   { label: "Appointment", icon: "calendar", href: `${B}/appointment/calendar` },
@@ -72,4 +71,5 @@ export const DETAIL_TITLES: Record<string, string> = {
   "tasks/new": "Add MBO Task",
   tasks: "Edit MBO Task",
   "rating-guides/edit": "Rating Guide",
+  "framework-examples/edit": "Framework Example",
 };

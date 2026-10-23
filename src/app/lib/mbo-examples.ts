@@ -34,3 +34,14 @@ export const FRAMEWORK_EXAMPLES: Record<RoleId, Record<string, FrameworkExample>
     "escalation": { example: "Example: Personal revenue is 12% below monthly target or a bank raises a query that could affect the relationship.\n• Correct: Written note to Manager within 2–3 days (immediate for bank risk) and CRM kept current\n• Failure: Issue left unmentioned until month-end or CRM stale\nUse case: Ensures early visibility so the Manager and Local Head can support recovery.", note: "Escalation discipline + reporting hygiene." },
   },
 };
+
+// The workbook's column E holds the worked example then "Use case: …"; keep them as separate fields.
+for (const role of Object.values(FRAMEWORK_EXAMPLES)) {
+  for (const x of Object.values(role)) {
+    const i = x.example.indexOf("\nUse case: ");
+    if (i >= 0 && !x.useCase) {
+      x.useCase = x.example.slice(i + "\nUse case: ".length).trim();
+      x.example = x.example.slice(0, i).trim();
+    }
+  }
+}

@@ -41,9 +41,9 @@ export const routes: Routes = [
         { path: 'web/mbo/tasks/:role/:no', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/task-form.component').then((m) => m.MboTaskFormComponent) },
         { path: 'web/mbo/rating-guides', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/rating-guides.component').then((m) => m.MboRatingGuidesComponent) },
         { path: 'web/mbo/rating-guides/edit', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/rating-guide-form.component').then((m) => m.MboRatingGuideFormComponent) },
+        { path: 'web/mbo/framework-examples', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/framework-examples.component').then((m) => m.MboFrameworkExamplesComponent) },
+        { path: 'web/mbo/framework-examples/edit', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/framework-example-form.component').then((m) => m.MboFrameworkExampleFormComponent) },
       ] : []),
-      // MBO Framework: dev builds only (hidden on the deployed site).
-      ...(isDevMode() ? [{ path: 'web/mbo/framework', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/framework.component').then((m) => m.MboFrameworkComponent) }] : []),
       { path: 'web/appointment/calendar', title: 'Coventrix +', loadComponent: () => import('./bd/appointment/appointment.component').then((m) => m.AppointmentComponent) },
       { path: '**', redirectTo: 'dashboard' },
     ],
