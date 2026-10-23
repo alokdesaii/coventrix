@@ -80,11 +80,23 @@ const GUIDE = {
             }
           </tbody>
           @if (rows?.length) {
-            <tfoot class="border-t border-slate/25 text-xs">
+            <tfoot class="border-t-2 border-slate/30 bg-label/60 text-sm">
               <tr>
-                <td colspan="3" class="py-2.5 pl-5 pr-3 font-medium text-night">Total weight</td>
-                <td class="px-3 py-2.5 text-right font-semibold tabular-nums" [class]="total() === 100 ? 'text-[#00857d]' : 'text-amber-700'">{{ total() }}%</td>
-                <td colspan="3" class="py-2.5 pl-3 pr-5 text-slate">{{ total() === 100 ? 'Weights add up to 100%.' : 'Weights should add up to 100% before targets are assigned.' }}</td>
+                <td colspan="3" class="py-3.5 pl-5 pr-3 font-semibold text-navy">Total weight</td>
+                <td class="px-3 py-3.5 text-right">
+                  <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-bold tabular-nums"
+                    [class]="total() === 100 ? 'bg-teal/15 text-[#00857d]' : 'bg-amber-100 text-amber-800'">
+                    @if (total() === 100) {
+                      <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                    } @else {
+                      <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 8v5M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
+                    }
+                    {{ total() }}%
+                  </span>
+                </td>
+                <td colspan="3" class="py-3.5 pl-3 pr-5 text-xs font-medium" [class]="total() === 100 ? 'text-[#00857d]' : 'text-amber-800'">
+                  {{ total() === 100 ? 'Weights add up to 100%.' : 'Weights should add up to 100% before targets are assigned.' }}
+                </td>
               </tr>
             </tfoot>
           }
