@@ -30,14 +30,19 @@ const GUIDE = {
     </app-page-header>
 
     <section [class]="panel">
-      <div class="flex flex-wrap items-end gap-4 border-b border-slate/20 p-5">
-        <div class="flex w-80 flex-col gap-1.5 text-xs font-medium text-slate">Role template
-          <app-select [class]="big" label="Role template" [value]="role" (valueChange)="pickRole($event)" [options]="roleOpts" />
+      <div class="flex flex-col gap-4 border-b border-slate/20 p-5">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div class="flex w-80 flex-col gap-1.5 text-xs font-medium text-slate">Role template
+            <app-select [class]="big" label="Role template" [value]="role" (valueChange)="pickRole($event)" [options]="roleOpts" />
+          </div>
+          <p class="max-w-md text-xs text-slate xl:text-right">Step 1 of 3. Each role has up to 5 tasks with fixed weights. Next: a rating guide per task, then a framework example per rating guide.</p>
         </div>
         @if (full()) {
-          <p class="rounded bg-amber-50 px-3 py-2 text-xs text-amber-900">{{ roleLabel() }} has 5 tasks, the framework maximum. Delete one to add another, or edit an existing one.</p>
+          <p class="flex items-center gap-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" /></svg>
+            {{ roleLabel() }} has 5 tasks, the framework maximum. Delete one to add another, or edit an existing one.
+          </p>
         }
-        <p class="ml-auto max-w-md text-xs text-slate">Step 1 of 3. Each role has up to 5 tasks with fixed weights. Next: a rating guide per task, then a framework example per rating guide.</p>
       </div>
 
       <div class="overflow-x-auto">
