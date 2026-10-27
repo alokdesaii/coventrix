@@ -40,7 +40,7 @@ export const BD_NAV: NavItem[] = [
   {
     label: "MBO", icon: "target", children: [
       { label: "My MBO", href: `${B}/mbo/my` },
-      { label: "My Escalations", href: `${B}/mbo/escalations`, disabled: true },
+      { label: "My Escalations", href: `${B}/mbo/escalations` },
       { label: "My Results", href: `${B}/mbo/results`, disabled: true },
       { label: "Team MBO", href: `${B}/mbo/team` },
       { label: "Assign MBO Targets", href: `${B}/mbo/assign` },
