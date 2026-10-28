@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  getAssignment, listTeam, PERIODS, ROLE_TEMPLATES, saveAssignment,
-  type Objective, type ObjectiveTarget, type RoleId, type TargetAssignment, type TargetStatus, type TeamMember,
+  getAssignment, getTemplateFor, listTeam, PERIODS, ROLE_TEMPLATES, saveAssignment,
+  type Objective, type ObjectiveTarget, type RoleId, type RoleTemplate, type TargetAssignment, type TargetStatus, type TeamMember,
 } from '../../api/mbo';
 import { big } from '../../shared/client-list.component';
 import { BandGuideComponent, FrameworkExampleComponent, STATUS, StatusChipComponent } from '../../shared/mbo';
@@ -100,7 +100,10 @@ export class CommitmentListComponent {
         </div>
         <details class="group rounded border border-slate/20 px-3 py-2">
           <summary class="cursor-pointer text-xs font-semibold text-navy">Framework example</summary>
-          <div class="mt-2"><app-framework-example [role]="role" [objectiveId]="o.id" /></div>
+          <div class="mt-2">
+            @if (o.example === null) { <p class="text-xs text-slate">No framework example mapped for this employee.</p> }
+            @else { <app-framework-example [role]="role" [objectiveId]="o.id" [example]="o.example" /> }
+          </div>
         </details>
       </div>
 
@@ -160,7 +163,7 @@ type Member = TeamMember & { status: Record<string, TargetStatus> };
           <span class="flex items-baseline justify-between gap-2">Role template <a routerLink="/bd/web/mbo/tasks" [queryParams]="{ role: template()?.id }" class="font-semibold text-navy hover:underline">Edit MBO setup →</a></span>
           <div class="flex min-h-9 flex-col justify-center rounded bg-label/60 px-3 py-1.5">
             <span class="text-sm font-semibold text-navy">{{ template()?.label ?? '—' }}</span>
-            @if (template(); as tpl) { <span class="text-xs font-normal text-night/70">{{ tpl.objectives.length }} objectives · 100% weight · weights fixed by framework</span> }
+            @if (template(); as tpl) { <span class="text-xs font-normal text-night/70">{{ tpl.objectives.length }} objectives · {{ weightOf(tpl) }}% weight · mapped in MBO Mapping</span> }
           </div>
         </div>
       </section>
@@ -237,7 +240,9 @@ export class AssignComponent implements OnInit {
   private req = 0;
 
   current = () => this.team?.find((m) => m.id === this.memberId);
-  template = () => { const m = this.current(); return m ? ROLE_TEMPLATES[m.role] : null; };
+  tpl: RoleTemplate | null = null; // the employee's mapped template for the period
+  template = () => this.tpl;
+  weightOf = (t: RoleTemplate) => +t.objectives.reduce((s, o) => s + o.weight, 0).toFixed(2);
   locked = () => this.a?.status === 'accepted';
   errors = (): Record<string, string> => (this.a && this.template() && this.tried ? validate(this.template()!.objectives, this.a) : {});
   hasErrors = () => Object.keys(this.errors()).length > 0;
@@ -259,8 +264,9 @@ export class AssignComponent implements OnInit {
   async load() {
     const n = ++this.req;
     this.a = null;
-    const a = await getAssignment(this.memberId, this.periodId);
+    const [a, tpl] = await Promise.all([getAssignment(this.memberId, this.periodId), getTemplateFor(this.memberId, this.periodId)]);
     if (n !== this.req) return;
+    this.tpl = tpl;
     this.a = a;
     this.tried = false;
     this.notice = '';

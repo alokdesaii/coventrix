@@ -53,6 +53,7 @@ export const BD_NAV: NavItem[] = [
       { label: "MBO Tasks", href: `${B}/mbo/tasks` },
       { label: "Rating Guides", href: `${B}/mbo/rating-guides` },
       { label: "Framework Examples", href: `${B}/mbo/framework-examples` },
+      { label: "MBO Mapping", href: `${B}/mbo/mapping` },
     ],
   },
   { label: "Appointment", icon: "calendar", href: `${B}/appointment/calendar` },

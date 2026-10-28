@@ -41,6 +41,7 @@ export const routes: Routes = [
       { path: 'web/mbo/rating-guides/edit', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/rating-guide-form.component').then((m) => m.MboRatingGuideFormComponent) },
       { path: 'web/mbo/framework-examples', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/framework-examples.component').then((m) => m.MboFrameworkExamplesComponent) },
       { path: 'web/mbo/framework-examples/edit', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/framework-example-form.component').then((m) => m.MboFrameworkExampleFormComponent) },
+      { path: 'web/mbo/mapping', title: 'Coventrix +', loadComponent: () => import('./bd/mbo/setup/mapping.component').then((m) => m.MboMappingComponent) },
       { path: 'web/appointment/calendar', title: 'Coventrix +', loadComponent: () => import('./bd/appointment/appointment.component').then((m) => m.AppointmentComponent) },
       { path: '**', redirectTo: 'dashboard' },
     ],

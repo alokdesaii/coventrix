@@ -78,7 +78,7 @@ const stat = 'text-xl font-semibold tabular-nums';
               <dl class="flex flex-col gap-4 text-sm">
                 <div><dt class="font-semibold text-night">What counts</dt><dd class="mt-1 text-night/80">{{ d.objective.definition }}</dd></div>
                 <div><dt class="font-semibold text-night">Evidence expected</dt><dd class="mt-1 text-night/80">{{ d.objective.evidence }}</dd></div>
-                <div><dt class="font-semibold text-night">Framework example</dt><dd class="mt-1"><app-framework-example [role]="d.mbo.member.role" [objectiveId]="d.objective.id" /></dd></div>
+                <div><dt class="font-semibold text-night">Framework example</dt><dd class="mt-1">@if (d.objective.example === null) { <span class="text-night/60">None mapped</span> } @else { <app-framework-example [role]="d.mbo.template.id" [objectiveId]="d.objective.id" [example]="d.objective.example" /> }</dd></div>
                 <div>
                   <dt class="font-semibold text-night">When to escalate</dt>
                   <dd class="mt-1 text-night/80">A ≥10% variance or capacity issue needs a written escalation within 2–3 business days; bank query risk, immediately.</dd>

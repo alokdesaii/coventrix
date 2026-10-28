@@ -2,7 +2,7 @@
 import { Component, Input } from '@angular/core';
 import type { Escalation, EscalationStatus, EvidenceStatus, Objective, RoleId, TargetStatus } from '../api/mbo';
 import { bandsFor, type Band } from '../lib/mbo-bands';
-import { FRAMEWORK_EXAMPLES } from '../lib/mbo-examples';
+import { FRAMEWORK_EXAMPLES, type FrameworkExample as FrameworkExampleData } from '../lib/mbo-examples';
 import { slaDueDate } from '../lib/mbo-sla';
 
 export const STATUS: Record<TargetStatus, { label: string; tone: string }> = {
@@ -144,5 +144,7 @@ export function escalationSla(e: Escalation): { label: string; tone: string } {
 export class FrameworkExampleComponent {
   @Input({ required: true }) role!: RoleId;
   @Input({ required: true }) objectiveId!: string;
-  x = () => FRAMEWORK_EXAMPLES[this.role]?.[this.objectiveId];
+  /** From an employee mapping: an example, or null for none. Undefined = the role's default example. */
+  @Input() example?: FrameworkExampleData | null;
+  x = () => (this.example !== undefined ? this.example : FRAMEWORK_EXAMPLES[this.role]?.[this.objectiveId]);
 }

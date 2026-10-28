@@ -29,6 +29,7 @@ export type Objective = {
   bands?: [number, number, number, number];                // lower bounds (% of target) for ratings 5, 4, 3, 2
   ratingLabels?: [string, string, string, string, string]; // 5 → 1
   currency?: string;                                       // revenue objectives, e.g. HKD
+  example?: FrameworkExample | null;                       // set by an employee mapping (null = none)
 };
 
 export type RoleTemplate = { id: RoleId; label: string; scope: string; objectives: Objective[] };
@@ -300,12 +301,15 @@ export async function listTeam(): Promise<(TeamMember & { status: Record<string,
 export async function getAssignment(memberId: string, period: string): Promise<TargetAssignment> {
   await delay();
   const saved = store.get(`${memberId}|${period}`);
-  if (saved) return structuredClone(saved);
-  const role = TEAM.find((m) => m.id === memberId)!.role;
-  return {
-    memberId, period, status: "not-set", notes: "",
-    targets: ROLE_TEMPLATES[role].objectives.map((o) => ({ objectiveId: o.id, commitments: [...(DEFAULT_COMMITMENTS[o.id] ?? [])] })),
-  };
+  const objectives = templateFor(memberId, period).objectives;
+  const blank = (id: string): ObjectiveTarget => ({ objectiveId: id, commitments: [...(DEFAULT_COMMITMENTS[id] ?? [])] });
+  if (saved) {
+    const a = structuredClone(saved);
+    // Drafts follow the current mapping; sent / accepted targets stay as agreed.
+    if (a.status === "draft") a.targets = objectives.map((o) => a.targets.find((t) => t.objectiveId === o.id) ?? blank(o.id));
+    return a;
+  }
+  return { memberId, period, status: "not-set", notes: "", targets: objectives.map((o) => blank(o.id)) };
 }
 
 export async function saveAssignment(a: TargetAssignment, send: boolean): Promise<TargetAssignment> {
@@ -408,7 +412,7 @@ export async function getMyMbo(period: string): Promise<MyMbo> {
   const member = TEAM.find((m) => m.id === currentUserId)!;
   const assignment = await getAssignment(member.id, period);
   return {
-    member, template: ROLE_TEMPLATES[member.role], assignment,
+    member, template: templateFor(member.id, period), assignment,
     asOf: AS_OF[`${member.id}|${period}`] ?? "2026-09-30",
     progress: PROGRESS[`${member.id}|${period}`] ?? assignment.targets.map((t) => ({ objectiveId: t.objectiveId, evidence: "missing" as const })),
     finalRating: null,
@@ -636,7 +640,7 @@ export async function listTeamOverview(period: string): Promise<TeamRow[]> {
     const openEscalations = own.length
       ? own.filter((e) => e.status === "submitted" || e.status === "acknowledged").length
       : OTHER_ESCALATIONS[member.id] ?? 0;
-    return { member, template: ROLE_TEMPLATES[member.role], assignment, progress, openEscalations };
+    return { member, template: templateFor(member.id, period), assignment, progress, openEscalations };
   }));
   return rows;
 }
@@ -691,7 +695,7 @@ export async function getReview(memberId: string, period: string): Promise<Revie
   const member = TEAM.find((m) => m.id === memberId);
   const assignment = store.get(`${memberId}|${period}`);
   if (!member || assignment?.status !== "accepted") return null;
-  const template = ROLE_TEMPLATES[member.role];
+  const template = templateFor(memberId, period);
   const key = `${memberId}|${period}`;
   return {
     member, template, assignment: structuredClone(assignment),
@@ -851,4 +855,109 @@ export async function saveExample(role: RoleId, no: number, x: FrameworkExample 
   const o = ROLE_TEMPLATES[role].objectives[no - 1];
   if (x) FRAMEWORK_EXAMPLES[role][o.id] = x;
   else delete FRAMEWORK_EXAMPLES[role][o.id];
+}
+
+// ---------- MBO mapping: role template + tasks + rating guide + example → employee ----------
+// Every task has its built-in guide ("Framework default", the one edited on Rating Guides) and the example
+// on Framework Examples. Extra guides / examples are alternatives the mapping can pick instead.
+
+export type GuideOption = { id: string; name: string; guide: RatingGuide };
+export type ExampleOption = { id: string; guideId: string; name: string; example: FrameworkExample };
+
+const DEFAULT_ID = (role: RoleId, objectiveId: string) => `default:${role}:${objectiveId}`;
+
+/** Alternative guides per role + task. ponytail: seeded for the demo; adding them comes from the setup pages next. */
+const EXTRA_GUIDES: Record<string, GuideOption[]> = {
+  "sales-rep:revenue": [{
+    id: "g-sr-rev-stretch", name: "Stretch (new market)",
+    guide: { labels: [...RATING_LABELS] as RatingGuide["labels"], bands: [130, 115, 100, 90] },
+  }],
+  "manager:revenue": [{
+    id: "g-mgr-rev-ramp", name: "Ramp-up year (new portfolio)",
+    guide: { labels: [...RATING_LABELS] as RatingGuide["labels"], bands: [115, 105, 95, 80] },
+  }],
+};
+const EXTRA_EXAMPLES: ExampleOption[] = [{
+  id: "x-sr-rev-stretch", guideId: "g-sr-rev-stretch", name: "New-market example",
+  example: { example: "Example: New-market personal target = HKD 2m.\n• Rating 5: ≥ HKD 2.6m\n• Rating 3: HKD 2.0–2.3m\n• Rating 1: < HKD 1.8m", useCase: "First year selling into a new market, where the upside is harder to reach.", note: "Use only with the Stretch guide." },
+}];
+
+const guideOf = (o: Objective): RatingGuide => ({
+  labels: [...(o.ratingLabels ?? RATING_LABELS)] as RatingGuide["labels"],
+  ...(o.kind === "revenue" || o.kind === "count" ? { bands: [...(o.bands ?? BANDS[o.kind])] as RatingGuide["bands"] } : { criteria: o.criteria }),
+});
+
+/** Guides a task can use: its framework default first, then any alternatives. */
+export function guideOptions(role: RoleId, o: Objective): GuideOption[] {
+  return [{ id: DEFAULT_ID(role, o.id), name: "Framework default", guide: guideOf(o) }, ...(EXTRA_GUIDES[`${role}:${o.id}`] ?? [])];
+}
+
+/** Examples for a guide (the default guide's example is the one on Framework Examples). */
+export function exampleOptions(role: RoleId, o: Objective, guideId: string): ExampleOption[] {
+  if (guideId === DEFAULT_ID(role, o.id)) {
+    const x = FRAMEWORK_EXAMPLES[role][o.id];
+    return x ? [{ id: DEFAULT_ID(role, o.id), guideId, name: "Framework example", example: x }] : [];
+  }
+  return EXTRA_EXAMPLES.filter((x) => x.guideId === guideId);
+}
+
+export type MappingLine = { objectiveId: string; included: boolean; guideId: string; exampleId: string | null };
+export type EmployeeMapping = { memberId: string; period: string; role: RoleId; lines: MappingLine[]; savedAt?: string };
+
+const MAPPINGS = new Map<string, EmployeeMapping>(); // `${memberId}|${period}`
+
+const defaultMapping = (memberId: string, period: string, role: RoleId): EmployeeMapping => ({
+  memberId, period, role,
+  lines: ROLE_TEMPLATES[role].objectives.map((o) => {
+    const g = DEFAULT_ID(role, o.id);
+    return { objectiveId: o.id, included: true, guideId: g, exampleId: exampleOptions(role, o, g)[0]?.id ?? null };
+  }),
+});
+
+/** Saved mapping, or the default (employee's own role, every task, default guides and examples). `role` previews another template. */
+export async function getMapping(memberId: string, period: string, role?: RoleId): Promise<EmployeeMapping> {
+  await delay();
+  const saved = MAPPINGS.get(`${memberId}|${period}`);
+  const want = role ?? saved?.role ?? TEAM.find((m) => m.id === memberId)!.role;
+  if (saved && saved.role === want) {
+    // Tasks added to the role since saving come in as included, with defaults.
+    const fresh = defaultMapping(memberId, period, want);
+    return { ...structuredClone(saved), lines: fresh.lines.map((d) => saved.lines.find((l) => l.objectiveId === d.objectiveId) ?? d) };
+  }
+  return defaultMapping(memberId, period, want);
+}
+
+export async function saveMapping(m: EmployeeMapping): Promise<EmployeeMapping> {
+  await delay(400);
+  const saved = { ...structuredClone(m), savedAt: new Date().toISOString() };
+  MAPPINGS.set(`${m.memberId}|${m.period}`, saved);
+  return saved;
+}
+
+export const isMapped = (memberId: string, period: string) => MAPPINGS.has(`${memberId}|${period}`);
+
+/** The template an employee actually works to for a period: mapped role, included tasks, chosen guide and example applied. */
+export function templateFor(memberId: string, period: string): RoleTemplate {
+  const member = TEAM.find((m) => m.id === memberId)!;
+  const m = MAPPINGS.get(`${memberId}|${period}`);
+  const role = m?.role ?? member.role;
+  const base = ROLE_TEMPLATES[role];
+  if (!m) return base;
+  const objectives = base.objectives.flatMap((o) => {
+    const line = m.lines.find((l) => l.objectiveId === o.id);
+    if (line && !line.included) return [];
+    const g = line && guideOptions(role, o).find((x) => x.id === line.guideId);
+    const x = line?.exampleId ? exampleOptions(role, o, line.guideId).find((e) => e.id === line.exampleId) : undefined;
+    return [{
+      ...o,
+      ...(g && g.id !== DEFAULT_ID(role, o.id) ? { ratingLabels: g.guide.labels, ...(g.guide.bands ? { bands: g.guide.bands } : { criteria: g.guide.criteria }) } : {}),
+      example: line ? (x?.example ?? null) : undefined,
+    }];
+  });
+  return { ...base, objectives };
+}
+
+export async function getTemplateFor(memberId: string, period: string): Promise<RoleTemplate> {
+  await delay(100);
+  return structuredClone(templateFor(memberId, period));
 }
