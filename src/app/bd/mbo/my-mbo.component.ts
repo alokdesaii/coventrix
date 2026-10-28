@@ -144,7 +144,7 @@ export class ReviewTargetsComponent {
           Final rating
           <span class="text-sm font-semibold text-night">{{ d?.finalRating ? d!.finalRating!.rating : 'Not yet assessed' }}</span>
           <span class="font-normal">MBO Panel / RemCo only</span>
-          <span aria-disabled="true" title="Coming soon" class="mt-1 cursor-not-allowed font-semibold text-slate">Past results →</span>
+          <a routerLink="/bd/web/mbo/results" class="mt-1 font-semibold text-navy hover:underline">Past results →</a>
         </div>
       </section>
 
