@@ -894,11 +894,12 @@ export function guideOptions(role: RoleId, o: Objective): GuideOption[] {
 
 /** Examples for a guide (the default guide's example is the one on Framework Examples). */
 export function exampleOptions(role: RoleId, o: Objective, guideId: string): ExampleOption[] {
+  const extras = EXTRA_EXAMPLES.filter((x) => x.guideId === guideId);
   if (guideId === DEFAULT_ID(role, o.id)) {
     const x = FRAMEWORK_EXAMPLES[role][o.id];
-    return x ? [{ id: DEFAULT_ID(role, o.id), guideId, name: "Framework example", example: x }] : [];
+    return [...(x ? [{ id: DEFAULT_ID(role, o.id), guideId, name: "Framework example", example: x }] : []), ...extras];
   }
-  return EXTRA_EXAMPLES.filter((x) => x.guideId === guideId);
+  return extras;
 }
 
 export type MappingLine = { objectiveId: string; included: boolean; guideId: string; exampleId: string | null };
@@ -960,4 +961,56 @@ export function templateFor(memberId: string, period: string): RoleTemplate {
 export async function getTemplateFor(memberId: string, period: string): Promise<RoleTemplate> {
   await delay(100);
   return structuredClone(templateFor(memberId, period));
+}
+
+
+// ---------- alternative guides / examples (managed on Rating Guides and Framework Examples) ----------
+
+export const isDefaultId = (id: string) => id.startsWith("default:");
+export const defaultGuideId = DEFAULT_ID;
+
+/** Every guide per task for a role, framework default first. */
+export async function listGuides(role: RoleId): Promise<{ no: number; task: Objective; options: GuideOption[] }[]> {
+  await delay();
+  return ROLE_TEMPLATES[role].objectives.map((o, i) => ({ no: i + 1, task: structuredClone(o), options: structuredClone(guideOptions(role, o)) }));
+}
+
+/** Adds (no id) or updates an alternative guide for a task. Returns its id. */
+export async function saveAltGuide(role: RoleId, objectiveId: string, g: { id?: string; name: string; guide: RatingGuide }): Promise<string> {
+  await delay();
+  const list = (EXTRA_GUIDES[`${role}:${objectiveId}`] ??= []);
+  const id = g.id ?? `g-${Date.now()}`;
+  const i = list.findIndex((x) => x.id === id);
+  const rec = { id, name: g.name, guide: g.guide };
+  if (i >= 0) list[i] = rec; else list.push(rec);
+  return id;
+}
+
+/** Deletes an alternative guide, its examples, and points mappings that used it back to the default guide. */
+export async function deleteAltGuide(role: RoleId, objectiveId: string, id: string): Promise<void> {
+  await delay();
+  const key = `${role}:${objectiveId}`;
+  EXTRA_GUIDES[key] = (EXTRA_GUIDES[key] ?? []).filter((g) => g.id !== id);
+  for (let i = EXTRA_EXAMPLES.length - 1; i >= 0; i--) if (EXTRA_EXAMPLES[i].guideId === id) EXTRA_EXAMPLES.splice(i, 1);
+  for (const m of MAPPINGS.values()) for (const l of m.lines) {
+    if (l.guideId === id) { l.guideId = DEFAULT_ID(m.role, l.objectiveId); l.exampleId = FRAMEWORK_EXAMPLES[m.role][l.objectiveId] ? l.guideId : null; }
+  }
+}
+
+/** Adds (no id) or updates an extra example on any guide. Returns its id. */
+export async function saveAltExample(x: { id?: string; guideId: string; name: string; example: FrameworkExample }): Promise<string> {
+  await delay();
+  const id = x.id ?? `x-${Date.now()}`;
+  const i = EXTRA_EXAMPLES.findIndex((e) => e.id === id);
+  const rec = { id, guideId: x.guideId, name: x.name, example: x.example };
+  if (i >= 0) EXTRA_EXAMPLES[i] = rec; else EXTRA_EXAMPLES.push(rec);
+  return id;
+}
+
+/** Deletes an extra example; mappings that used it fall back to no example. */
+export async function deleteAltExample(id: string): Promise<void> {
+  await delay();
+  const i = EXTRA_EXAMPLES.findIndex((e) => e.id === id);
+  if (i >= 0) EXTRA_EXAMPLES.splice(i, 1);
+  for (const m of MAPPINGS.values()) for (const l of m.lines) if (l.exampleId === id) l.exampleId = null;
 }

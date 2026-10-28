@@ -1,6 +1,9 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BANDS, getRatingGuide, RATING_LABELS, ROLE_TEMPLATES, saveRatingGuide, type Objective, type RatingGuide, type RoleId } from '../../../api/mbo';
+import {
+  BANDS, deleteAltGuide, getRatingGuide, guideOptions, isDefaultId, RATING_LABELS, ROLE_TEMPLATES, saveAltGuide, saveRatingGuide,
+  type Objective, type RatingGuide, type RoleId,
+} from '../../../api/mbo';
 import { BandGuideComponent } from '../../../shared/mbo';
 import { BackButtonComponent, LabelComponent, PageHeaderComponent, PANEL, SelectComponent } from '../../../shared/ui';
 import { TYPE_LABEL } from './setup-shared';
@@ -34,6 +37,17 @@ const CRITERIA_HINT = ['100% timely + proactive + clean reporting', '100% timely
         <app-label text="MBO task" [required]="true" [error]="e()['task']">
           <app-select [class]="tall" label="MBO task" [value]="no ? '' + no : ''" [invalid]="!!e()['task']" (valueChange)="pickTask(+$event)" [options]="taskOpts()" />
         </app-label>
+        @if (task) {
+          <app-label text="Rating guide" [required]="true" hint="Each task has its framework default; alternatives can be picked per employee in MBO Mapping.">
+            <app-select [class]="tall" label="Rating guide" [value]="guideId" (valueChange)="pickGuide($event)" [options]="guideOpts()" />
+          </app-label>
+          @if (!isDefault()) {
+            <app-label text="Guide name" [required]="true" [error]="e()['name']" hint="e.g. Stretch (new market), Ramp-up year">
+              <input #gn class="h-10 w-full rounded border bg-white px-3 text-sm text-night outline-none focus:border-teal focus:ring-2 focus:ring-teal/20" [class]="border(e()['name'])"
+                [attr.aria-invalid]="!!e()['name']" [value]="name" (input)="name = gn.value" />
+            </app-label>
+          }
+        }
       </section>
 
       @if (!task) {
@@ -114,7 +128,10 @@ const CRITERIA_HINT = ['100% timely + proactive + clean reporting', '100% timely
 
       <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate/20 pt-5">
         @if (tried && hasErrors()) { <p role="alert" class="mr-auto text-sm text-red-600">Complete every band before saving.</p> }
-        @else { <p class="mr-auto text-xs text-slate">One rating guide per MBO task. Next step: its framework example.</p> }
+        @else { <p class="mr-auto text-xs text-slate">Default and alternative guides both appear in MBO Mapping. Next step: framework examples.</p> }
+        @if (task && !isDefault() && guideId !== 'new') {
+          <button type="button" [disabled]="saving" (click)="remove()" class="h-10 rounded border border-red-200 px-4 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-40">Delete guide</button>
+        }
         <button type="button" [class]="secondary" [disabled]="saving" (click)="back()">Cancel</button>
         <button [class]="primary" [disabled]="saving || !task">{{ saving ? 'Saving…' : 'Save rating guide' }}</button>
       </div>
@@ -124,6 +141,7 @@ const CRITERIA_HINT = ['100% timely + proactive + clean reporting', '100% timely
 export class MboRatingGuideFormComponent implements OnInit {
   @Input('role') set roleIn(v: string | undefined) { if (v) this.role = v as RoleId; } // ?role=
   @Input('no') set noIn(v: string | undefined) { if (v) this.no = +v; }              // ?no=
+  @Input('guide') set guideIn(v: string | undefined) { if (v) this.guideId = v; }      // ?guide= (default id, alternative id, or 'new')
 
   private router = inject(Router);
   readonly panel = PANEL;
@@ -141,6 +159,8 @@ export class MboRatingGuideFormComponent implements OnInit {
   role: RoleId = 'sales-rep';
   no = 0;
   task: Objective | null = null;
+  guideId = '';   // '' / default id = framework default; 'new' = new alternative
+  name = '';
   rows: Row[] = [];
   sample = 0;
   loading = false;
@@ -148,6 +168,11 @@ export class MboRatingGuideFormComponent implements OnInit {
   saving = false;
   private req = 0;
 
+  isDefault = () => !this.guideId || isDefaultId(this.guideId);
+  guideOpts = () => [
+    ...guideOptions(this.role, this.task!).map((g) => ({ value: g.id, label: g.name })),
+    { value: 'new', label: '+ New alternative guide' },
+  ];
   numeric = () => this.task!.kind === 'revenue' || this.task!.kind === 'count';
   unit = () => (this.task!.kind === 'count' ? ` · ${this.task!.unit}` : this.task!.kind === 'revenue' ? ` · ${this.task!.currency ?? 'HKD'}` : '');
   taskOpts = () => [{ value: '', label: 'Select MBO task…' }, ...ROLE_TEMPLATES[this.role].objectives.map((o, i) => ({ value: String(i + 1), label: `${i + 1}. ${o.title}` }))];
@@ -167,7 +192,8 @@ export class MboRatingGuideFormComponent implements OnInit {
   ngOnInit() { if (this.no) this.load(); }
 
   pickRole(r: RoleId) { this.role = r; this.no = 0; this.task = null; this.tried = false; }
-  pickTask(n: number) { this.no = n; this.tried = false; if (n) this.load(); else this.task = null; }
+  pickTask(n: number) { this.no = n; this.tried = false; this.guideId = this.guideId === 'new' ? 'new' : ''; if (n) this.load(); else this.task = null; }
+  pickGuide(id: string) { this.guideId = id; this.tried = false; this.load(); }
 
   async load() {
     const n = ++this.req;
@@ -177,7 +203,15 @@ export class MboRatingGuideFormComponent implements OnInit {
     if (n !== this.req) return;
     this.loading = false;
     if (!res) return;
-    const g = res.guide;
+    let g = res.guide;
+    if (this.guideId === 'new') {
+      // A new alternative starts from the framework default bands (numeric) or blank criteria.
+      g = { labels: [...RATING_LABELS] as RatingGuide['labels'], ...(res.guide.bands ? { bands: [...BANDS[res.task.kind as 'revenue' | 'count']] as RatingGuide['bands'] } : { criteria: undefined }) };
+      this.name = '';
+    } else if (!this.isDefault()) {
+      const alt = guideOptions(this.role, res.task).find((x) => x.id === this.guideId);
+      if (!alt) { this.guideId = ''; } else { g = alt.guide; this.name = alt.name; }
+    }
     this.rows = g.labels.map((label, i) => ({ label, mult: i < 4 && g.bands ? String(g.bands[i]) : '', criteria: g.criteria?.[i] ?? '' }));
     this.sample = res.task.kind === 'revenue' ? 1_000_000 : 10;
     this.task = res.task;
@@ -191,6 +225,11 @@ export class MboRatingGuideFormComponent implements OnInit {
   validate(): Errors {
     const e: Errors = {};
     if (!this.task) { e['task'] = 'Pick an MBO task.'; return e; }
+    if (!this.isDefault()) {
+      const n = this.name.trim().toLowerCase();
+      if (!n) e['name'] = 'Name the guide.';
+      else if (guideOptions(this.role, this.task).some((x) => x.id !== this.guideId && x.name.toLowerCase() === n)) e['name'] = 'This task already has a guide with that name.';
+    }
     this.rows.forEach((r, i) => {
       if (!r.label.trim()) e['label' + i] = 'Required';
       if (this.numeric() && i < 4 && !(Number(r.mult) > 0)) e['mult' + i] = 'Required';
@@ -221,7 +260,15 @@ export class MboRatingGuideFormComponent implements OnInit {
         : { criteria: this.rows.map((r) => r.criteria.trim()) as RatingGuide['criteria'] }),
     };
     this.saving = true;
-    await saveRatingGuide(this.role, this.no, g);
+    if (this.isDefault()) await saveRatingGuide(this.role, this.no, g);
+    else await saveAltGuide(this.role, this.task!.id, { id: this.guideId === 'new' ? undefined : this.guideId, name: this.name.trim(), guide: g });
+    this.back();
+  }
+
+  async remove() {
+    if (!confirm(`Delete the "${this.name}" guide? Its framework examples go too, and employees mapped to it move back to the framework default.`)) return;
+    this.saving = true;
+    await deleteAltGuide(this.role, this.task!.id, this.guideId);
     this.back();
   }
 }

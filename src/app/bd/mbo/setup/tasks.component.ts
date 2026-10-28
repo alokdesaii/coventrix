@@ -110,7 +110,7 @@ const GUIDE = {
     </section>
     <app-modal [open]="!!view" [title]="view?.objective?.title ?? ''" width="40rem" (closed)="view = null">
       @if (view; as v) {
-        <app-setup-view [role]="role" [row]="v" focus="task" editLabel="Edit task" (closed)="view = null" (edit)="view = null; router.navigate(['/bd/web/mbo/tasks', role, v.no])" />
+        <app-setup-view [role]="role" [no]="v.no" [objective]="v.objective" focus="task" editLabel="Edit task" (closed)="view = null" (edit)="view = null; router.navigate(['/bd/web/mbo/tasks', role, v.no])" />
       }
     </app-modal>
   `,
