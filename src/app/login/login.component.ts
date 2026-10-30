@@ -29,7 +29,10 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
 
         <section aria-label="Select your department" class="grid grid-cols-2 gap-4 md:grid-cols-4">
           @for (d of departments; track d.id) {
-            <div class="relative aspect-[5/6] overflow-hidden rounded-md ring-2 transition"
+            <!-- The tile is the only rounded shape: the mask forces WebKit to apply the rounded overflow
+                 clip to composited children (the image's blur / scale), which it otherwise skips.
+                 Rounding the children instead would leave an antialiasing seam against this clip. -->
+            <div class="relative isolate aspect-[5/6] overflow-hidden rounded-md ring-2 transition [-webkit-mask-image:-webkit-radial-gradient(white,black)]"
               [class]="active === d.id ? 'ring-teal' : 'ring-white/80 hover:ring-teal'">
               <img [src]="'assets/login/' + d.img" alt=""
                 class="absolute inset-0 h-full w-full object-cover transition duration-300"
