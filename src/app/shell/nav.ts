@@ -44,7 +44,7 @@ export const BD_NAV: NavItem[] = [
       { label: "My Results", href: `${B}/mbo/results` },
       { label: "Team MBO", href: `${B}/mbo/team` },
       { label: "Assign MBO Targets", href: `${B}/mbo/assign` },
-      { label: "MBO Review", href: `${B}/mbo/review`, disabled: true },
+      { label: "MBO Review", href: `${B}/mbo/review` },
     ],
   },
   // Admin set-up: show to the MBO Panel only once the menu API exists.
