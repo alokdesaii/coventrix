@@ -111,20 +111,37 @@ function breadcrumbs(nav: NavItem[], path: string): string[] {
               }
             </ol>
           </nav>
-          <!-- ponytail: demo "View as" switch — replace with the signed-in user's menu once auth exists. -->
-          <label class="relative ml-auto flex items-center gap-2 rounded-full py-1 pr-2 pl-1 text-sm font-medium text-night hover:bg-mist">
-            <span class="grid size-8 place-items-center rounded-full bg-navy text-xs font-semibold text-white">{{ initials() }}</span>
-            <span class="hidden flex-col leading-tight sm:flex">
-              <span>{{ me().name }}</span>
-              <span class="text-[11px] font-normal text-slate">Demo · view as</span>
-            </span>
-            <svg viewBox="0 0 24 24" class="size-4 text-slate" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-            <select aria-label="View the portal as" class="absolute inset-0 cursor-pointer opacity-0" (change)="switchUser($any($event.target).value)">
-              @for (u of users; track u.id) {
-                <option [value]="u.id" [selected]="u.id === uid">{{ u.name }} — {{ u.role }}</option>
-              }
-            </select>
-          </label>
+          <!-- ponytail: demo "View as" list — drop it once auth exists; Sign out is the hook for the real thing. -->
+          <div class="relative ml-auto">
+            <button type="button" class="flex items-center gap-2 rounded-full py-1 pr-2 pl-1 text-sm font-medium text-night hover:bg-mist"
+              [attr.aria-expanded]="menu" aria-haspopup="menu" (click)="menu = !menu">
+              <span class="grid size-8 place-items-center rounded-full bg-navy text-xs font-semibold text-white">{{ initials() }}</span>
+              <span class="hidden flex-col text-left leading-tight sm:flex">
+                <span>{{ me().name }}</span>
+                <span class="text-[11px] font-normal text-slate">{{ me().role }}</span>
+              </span>
+              <svg viewBox="0 0 24 24" class="size-4 text-slate transition" [class.rotate-180]="menu" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            @if (menu) {
+              <div class="fixed inset-0 z-30" (click)="menu = false"></div>
+              <div role="menu" class="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-lg border border-slate/20 bg-white py-1 shadow-lg">
+                <p class="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate">Demo · view as</p>
+                @for (u of users; track u.id) {
+                  <button type="button" role="menuitem" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-mist"
+                    [class]="u.id === uid ? 'font-medium text-navy' : 'text-night'" (click)="switchUser(u.id)">
+                    <svg viewBox="0 0 24 24" class="size-4 shrink-0 text-teal" [class.invisible]="u.id !== uid" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m5 13 4 4L19 7" /></svg>
+                    <span class="whitespace-nowrap">{{ u.name }}</span>
+                    <span class="ml-auto text-right text-[11px] leading-tight text-slate">{{ u.role }}</span>
+                  </button>
+                }
+                <div class="my-1 border-t border-slate/20"></div>
+                <a routerLink="/login" role="menuitem" class="flex items-center gap-2 px-3 py-2 text-sm text-night hover:bg-mist" (click)="menu = false">
+                  <svg viewBox="0 0 24 24" class="size-4 shrink-0 text-slate" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9" /></svg>
+                  Sign out
+                </a>
+              </div>
+            }
+          </div>
         </header>
         <!-- re-keyed on uid: switching user remounts the page so it reloads as that person -->
         @for (k of [uid]; track k) {
@@ -158,6 +175,7 @@ export class AppShellComponent implements OnInit {
   readonly users = listDemoUsers();
 
   open = false;
+  menu = false;
   uid = getCurrentUserId();
   expanded: string | null = null;
 
@@ -171,5 +189,6 @@ export class AppShellComponent implements OnInit {
   switchUser(id: string) {
     setCurrentUserId(id);
     this.uid = id;
+    this.menu = false;
   }
 }
