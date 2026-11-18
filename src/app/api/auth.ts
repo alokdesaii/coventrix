@@ -10,7 +10,18 @@ export type Department =
   | "payment"
   | "compliance";
 
-export type LoginRequest = { department: Department; username: string; password: string };
+/** The departments offered in the login dropdown, in display order. `img` is the artwork in assets/login/. */
+export const DEPARTMENTS: { id: Department; label: string; img: string }[] = [
+  { id: "bd-cbd", label: "BD / CBD", img: "img-block-bd.png" },
+  { id: "it", label: "IT", img: "img-block-it.png" },
+  { id: "marketing", label: "Marketing", img: "img-block-marketing.png" },
+  { id: "legal", label: "Legal", img: "img-block-legal.png" },
+  { id: "customer-service", label: "Customer Service", img: "img-block-cs.png" },
+  { id: "payment", label: "Payment", img: "img-block-payments.png" },
+  { id: "compliance", label: "Compliance", img: "img-block-compliance.png" },
+];
+
+export type LoginRequest ={ department: Department; username: string; password: string };
 export type LoginResponse = { otpRequired: true; challengeId: string };
 
 export type VerifyOtpRequest = { challengeId: string; otp: string };
