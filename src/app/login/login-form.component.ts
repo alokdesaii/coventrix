@@ -14,14 +14,15 @@ export class AutofocusDirective implements AfterViewInit {
   }
 }
 
+// Same control styles as the rest of the portal (see shared/ui.ts and the MBO screens).
 const field =
-  'h-11 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none transition placeholder:text-label/30 hover:border-white/20 focus:border-teal/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-teal/10';
+  'h-10 w-full rounded border border-slate/40 bg-white px-3 text-sm text-night outline-none transition placeholder:text-slate hover:border-slate/60 focus:border-teal focus:ring-2 focus:ring-teal/20';
 const primary =
-  'h-11 w-full rounded-lg bg-teal text-sm font-semibold text-ink transition hover:bg-teal/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-label/40';
-const link = 'text-xs font-medium text-label/60 underline-offset-4 transition hover:text-white hover:underline';
-const label = 'mb-2 block text-xs font-medium text-label/60';
-const heading = 'text-xl font-semibold tracking-tight';
-const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
+  'h-10 w-full rounded bg-navy text-sm font-semibold text-white transition hover:bg-navy/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy disabled:cursor-not-allowed disabled:opacity-40';
+const link = 'text-xs font-medium text-navy underline-offset-4 transition hover:underline';
+const label = 'mb-1.5 block text-xs font-medium text-night/60';
+const heading = 'text-xl font-semibold tracking-tight text-navy';
+const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
 
 @Component({
   selector: 'app-login-form',
@@ -43,10 +44,10 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
               <select id="department" name="department" [class]="field + ' cursor-pointer appearance-none pr-10'"
                 [ngModel]="department" (ngModelChange)="departmentChange.emit($event)">
                 @for (d of departments; track d.id) {
-                  <option [value]="d.id" class="bg-navy text-white">{{ d.label }}</option>
+                  <option [value]="d.id">{{ d.label }}</option>
                 }
               </select>
-              <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-label/50"
+              <svg viewBox="0 0 24 24" class="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-slate"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </div>
           </div>
@@ -62,7 +63,7 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
             <div class="relative">
               <input id="password" [class]="field + ' pr-11'" [type]="show ? 'text' : 'password'" placeholder="Enter your password"
                 autocomplete="current-password" name="password" [(ngModel)]="password" />
-              <button type="button" class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-md text-label/50 transition hover:text-white"
+              <button type="button" class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded text-slate transition hover:text-navy"
                 [attr.aria-label]="show ? 'Hide password' : 'Show password'" (click)="show = !show">
                 <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />
@@ -75,7 +76,7 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
           </div>
 
           <button [class]="primary" [disabled]="busy || !username || !password">{{ busy ? 'Signing in…' : 'Sign in' }}</button>
-          <p class="mt-6 text-center text-xs text-label/40">Protected by one-time password verification.</p>
+          <p class="mt-6 text-center text-xs text-slate">Protected by one-time password verification.</p>
         </form>
       }
       @case ('otp') {
@@ -108,7 +109,7 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
       }
       @case ('forgot-sent') {
         <div class="flex flex-col text-center">
-          <span class="mx-auto mb-5 grid size-11 place-items-center rounded-full bg-teal/15 text-teal">
+          <span class="mx-auto mb-5 grid size-11 place-items-center rounded-full bg-teal/10 text-[#00857d]">
             <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /><path d="m3.5 7.5 8.5 6 8.5-6" /></svg>
           </span>
           <h2 [class]="heading">Check your email</h2>
@@ -119,7 +120,7 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-label/50';
     }
 
     @if (error) {
-      <p role="alert" class="mt-5 rounded-lg border border-red-400/25 bg-red-500/10 px-3 py-2.5 text-center text-xs text-red-200">{{ error }}</p>
+      <p role="alert" class="mt-5 rounded border border-red-200 bg-red-50 px-3 py-2.5 text-center text-xs text-red-700">{{ error }}</p>
     }
   `,
 })
