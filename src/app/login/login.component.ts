@@ -81,9 +81,9 @@ const STEPS: { step: Step | null; title: string; note: string }[] = [
           </div>
 
           <div class="mt-10 flex flex-col items-center gap-5 border-t border-white/10 pt-8">
-            <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 opacity-50">
+            <ul class="flex flex-wrap items-center justify-center gap-x-3 gap-y-3 opacity-60">
               @for (p of poweredBy; track p) {
-                <li><img [src]="'assets/login/' + p + '.svg'" [alt]="p.replaceAll('-', ' ')" class="h-4 w-auto" /></li>
+                <li><img [src]="'assets/login/' + p + '.svg'" [alt]="p.replaceAll('-', ' ')" class="h-9 w-auto" /></li>
               }
             </ul>
             <p>© {{ year }} Harbour and Hills Financial Services Limited</p>
