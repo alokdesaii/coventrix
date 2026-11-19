@@ -29,19 +29,25 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
       </div>
 
       <!-- Full-width footer -->
-      <footer class="w-full border-t border-white/10 pt-10 text-xs leading-relaxed text-white/60 lg:px-6">
-        <!-- Symmetric by construction: four equal text cells, then two equal centred logo halves -->
-        <section>
-          <h2 [class]="heading">Security information</h2>
-          <ul class="grid gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
-            <li [class]="item"><span [class]="dot"></span><span>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</span></li>
-            <li [class]="item"><span [class]="dot"></span><span>Never share your PIN, OTP, User ID or Password with anyone.</span></li>
-            <li [class]="item"><span [class]="dot"></span><span>Do not enter login or other sensitive information in any pop up window.</span></li>
-            <li [class]="item"><span [class]="dot"></span><span>The URL is inaccessible in sanctioned/embargoed countries.</span></li>
-          </ul>
+      <footer class="-mx-4 w-[calc(100%+2rem)] border-t border-white/10 px-4 pt-10 text-xs leading-relaxed text-white/60 sm:-mx-6 sm:w-[calc(100%+3rem)] sm:px-6">
+        <div class="mx-auto max-w-5xl">
+        <!-- One compact notice rather than four sentences spread across the page -->
+        <section class="flex gap-4 rounded-md border border-white/10 bg-white/[0.04] p-5 sm:p-6">
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-teal/15 text-teal">
+            <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
+          </span>
+          <div class="min-w-0">
+            <h2 class="text-sm font-semibold text-white">Security information</h2>
+            <ul class="mt-3 grid gap-x-10 gap-y-2 sm:grid-cols-2">
+              <li [class]="item"><span [class]="dot"></span><span>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>Never share your PIN, OTP, User ID or Password with anyone.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>Do not enter login or other sensitive information in any pop up window.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>The URL is inaccessible in sanctioned/embargoed countries.</span></li>
+            </ul>
+          </div>
         </section>
 
-        <div class="mt-10 grid gap-10 border-t border-white/10 pt-10 lg:grid-cols-2">
+        <div class="mt-10 grid gap-8">
           <section class="text-center">
             <h2 [class]="heading">Digital security</h2>
             <ul class="flex flex-wrap items-center justify-center gap-2.5">
@@ -66,6 +72,7 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
             <span class="text-white/45">Login support</span>
             <span class="font-medium text-white/80 hover:underline">tech.support&#64;harbourandhills.com</span>
           </a>
+        </div>
         </div>
       </footer>
     </main>
