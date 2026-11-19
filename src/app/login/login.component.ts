@@ -12,7 +12,7 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
   imports: [LogoComponent, LoginFormComponent],
   template: `
     <!-- Full-bleed navy gradient (the sidebar navy with a teal glow); white card centred on top -->
-    <main class="relative isolate flex min-h-dvh flex-col items-center overflow-hidden px-4 py-10 text-white sm:px-6
+    <main class="relative isolate flex min-h-dvh flex-col items-center overflow-hidden px-4 pt-10 text-white sm:px-6
       bg-[radial-gradient(at_15%_10%,#0a6b7d_0px,transparent_55%),radial-gradient(at_90%_5%,#024f73_0px,transparent_45%),linear-gradient(155deg,#023e63,#012a45)]">
       <svg viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" class="absolute inset-x-0 bottom-0 -z-10 h-2/5 w-full">
         <path fill="#ffffff" fill-opacity="0.03" d="M0 210C170 120 330 100 480 150S760 70 940 95s330 120 500 55V320H0Z" />
@@ -28,42 +28,45 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
         </div>
       </div>
 
-      <footer class="w-full max-w-6xl text-xs leading-relaxed text-white/60">
-        <div class="grid gap-8 lg:grid-cols-[1fr_1.35fr] lg:gap-12">
+      <!-- Full-width footer: three equal columns, then a bottom bar -->
+      <footer class="w-full border-t border-white/10 pt-10 text-xs leading-relaxed text-white/60 lg:px-6">
+        <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-[1fr_auto_auto] lg:gap-14">
           <section>
-            <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/45">Security information</h2>
-            <ul class="grid gap-2 sm:grid-cols-2">
-              <li>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</li>
-              <li>Never share your PIN, OTP, User ID or Password with anyone.</li>
-              <li>Do not enter login or other sensitive information in any pop up window.</li>
-              <li>The URL is inaccessible in sanctioned/embargoed countries.</li>
+            <h2 [class]="heading">Security information</h2>
+            <ul class="space-y-2.5">
+              <li [class]="item"><span [class]="dot"></span><span>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>Never share your PIN, OTP, User ID or Password with anyone.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>Do not enter login or other sensitive information in any pop up window.</span></li>
+              <li [class]="item"><span [class]="dot"></span><span>The URL is inaccessible in sanctioned/embargoed countries.</span></li>
             </ul>
           </section>
-          <div class="grid gap-6">
-            <section>
-              <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/45">Digital security</h2>
-              <ul class="flex flex-wrap items-center gap-2.5">
-                @for (b of badges; track b) {
-                  <li><img [src]="'assets/login/' + b + '.svg'" [alt]="b.replaceAll('-', ' ')" class="h-7 w-auto" /></li>
-                }
-              </ul>
-            </section>
-            <section>
-              <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/45">Powered by</h2>
-              <ul class="flex flex-wrap items-center gap-2.5">
-                @for (p of poweredBy; track p) {
-                  <li><img [src]="'assets/login/' + p + '.svg'" [alt]="p.replaceAll('-', ' ')" class="h-7 w-auto" /></li>
-                }
-              </ul>
-            </section>
-          </div>
+
+          <section>
+            <h2 [class]="heading">Digital security</h2>
+            <ul class="grid w-fit grid-cols-3 gap-2.5">
+              @for (b of badges; track b) {
+                <li><img [src]="'assets/login/' + b + '.svg'" [alt]="b.replaceAll('-', ' ')" class="h-9 w-auto" /></li>
+              }
+            </ul>
+          </section>
+
+          <section class="md:col-span-2 lg:col-span-1">
+            <h2 [class]="heading">Powered by</h2>
+            <ul class="flex flex-wrap items-center gap-2.5 lg:flex-nowrap">
+              @for (p of poweredBy; track p) {
+                <li><img [src]="'assets/login/' + p + '.svg'" [alt]="p.replaceAll('-', ' ')" class="h-9 w-auto" /></li>
+              }
+            </ul>
+          </section>
         </div>
 
-        <p class="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/15 pt-6">
+        <div class="mt-10 flex flex-col items-center gap-2 border-t border-white/10 py-6 sm:flex-row sm:justify-between">
           <span>© {{ year }} Harbour and Hills Financial Services Limited</span>
-          <span aria-hidden="true">·</span>
-          <a class="hover:text-white hover:underline" href="mailto:tech.support&#64;harbourandhills.com">tech.support&#64;harbourandhills.com</a>
-        </p>
+          <a class="inline-flex items-center gap-2 hover:text-white" href="mailto:tech.support&#64;harbourandhills.com">
+            <span class="text-white/45">Login support</span>
+            <span class="font-medium text-white/80 hover:underline">tech.support&#64;harbourandhills.com</span>
+          </a>
+        </div>
       </footer>
     </main>
   `,
@@ -73,6 +76,9 @@ export class LoginComponent {
   readonly poweredBy = POWERED_BY;
   readonly site = 'https://coventrix.harbourandhills.com';
   readonly year = new Date().getFullYear();
+  readonly heading = 'mb-4 text-[11px] font-semibold uppercase tracking-widest text-white/45';
+  readonly item = 'flex gap-2.5';
+  readonly dot = 'mt-[7px] size-1 shrink-0 rounded-full bg-teal';
 
   department: Department = 'bd-cbd';
 }
