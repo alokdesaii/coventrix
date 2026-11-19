@@ -37,12 +37,6 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
         <span #blob class="blob blob-b"></span>
       </div>
 
-      <svg viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" class="absolute inset-x-0 bottom-0 -z-10 h-2/5 w-full">
-        <path fill="#ffffff" fill-opacity="0.03" d="M0 210C170 120 330 100 480 150S760 70 940 95s330 120 500 55V320H0Z" />
-        <path fill="#ffffff" fill-opacity="0.03" d="M0 260C200 190 380 215 590 235s390-55 590-30c120 15 200 35 260 25V320H0Z" />
-        <path fill="#00bfb3" fill-opacity="0.06" d="M0 290c260-45 480-25 720-10s470 5 720-25V320H0Z" />
-      </svg>
-
       <app-logo tone="light" svgClass="h-8 w-auto" />
 
       <div class="my-auto w-full max-w-sm py-12">
