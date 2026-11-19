@@ -10,10 +10,58 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
   selector: 'app-login',
   standalone: true,
   imports: [LogoComponent, LoginFormComponent],
+  styles: `
+    .glow {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(90px);
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .glow-a { width: 42vw; height: 42vw; left: -12vw; top: -14vw; background: #00bfb3; opacity: 0.22; animation: drift-a 24s ease-in-out infinite alternate; }
+    .glow-b { width: 36vw; height: 36vw; right: -10vw; top: 30%; background: #22d3ee; opacity: 0.14; animation: drift-b 30s ease-in-out infinite alternate; }
+    .glow-c { width: 30vw; height: 30vw; left: 30%; bottom: -16vw; background: #2dd4bf; opacity: 0.12; animation: drift-c 27s ease-in-out infinite alternate; }
+
+    /* a thin neon line that sweeps slowly across now and then */
+    .streak {
+      position: absolute;
+      left: -40%;
+      top: 38%;
+      width: 40%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #5eead4, transparent);
+      box-shadow: 0 0 12px 1px #2dd4bf66;
+      opacity: 0;
+      transform: rotate(-8deg);
+      animation: sweep 14s ease-in-out infinite 3s;
+    }
+
+    @keyframes drift-a { to { transform: translate(14vw, 10vh) scale(1.15); } }
+    @keyframes drift-b { to { transform: translate(-12vw, -14vh) scale(0.9); } }
+    @keyframes drift-c { to { transform: translate(-16vw, -8vh) scale(1.2); } }
+    @keyframes sweep {
+      0% { left: -40%; opacity: 0; }
+      10% { opacity: 0.7; }
+      40% { left: 110%; opacity: 0; }
+      100% { left: 110%; opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glow, .streak { animation: none; }
+    }
+  `,
   template: `
     <!-- Full-bleed navy gradient (the sidebar navy with a teal glow); white card centred on top -->
     <main class="relative isolate flex min-h-dvh flex-col items-center overflow-hidden px-4 pt-10 text-white sm:px-6
       bg-[radial-gradient(at_15%_10%,#0a6b7d_0px,transparent_55%),radial-gradient(at_90%_5%,#024f73_0px,transparent_45%),linear-gradient(155deg,#023e63,#012a45)]">
+      <!-- Slow neon glows drifting behind everything; static under prefers-reduced-motion -->
+      <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <span class="glow glow-a"></span>
+        <span class="glow glow-b"></span>
+        <span class="glow glow-c"></span>
+        <span class="streak"></span>
+      </div>
+
       <svg viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" class="absolute inset-x-0 bottom-0 -z-10 h-2/5 w-full">
         <path fill="#ffffff" fill-opacity="0.03" d="M0 210C170 120 330 100 480 150S760 70 940 95s330 120 500 55V320H0Z" />
         <path fill="#ffffff" fill-opacity="0.03" d="M0 260C200 190 380 215 590 235s390-55 590-30c120 15 200 35 260 25V320H0Z" />
