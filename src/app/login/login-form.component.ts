@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiError, DEPARTMENTS, forgotPassword, login, verifyOtp, type Department } from '../api/auth';
 
-export type Step = 'credentials' | 'otp' | 'forgot' | 'forgot-sent';
+type Step = 'credentials' | 'otp' | 'forgot' | 'forgot-sent';
 
 /** The native autofocus attribute only fires on page load, so it misses the fields each later step creates. */
 @Directive({ selector: '[appAutofocus]', standalone: true })
@@ -21,7 +21,7 @@ const primary =
   'h-10 w-full rounded bg-navy text-sm font-semibold text-white transition hover:bg-navy/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy disabled:cursor-not-allowed disabled:opacity-40';
 const link = 'text-xs font-medium text-navy underline-offset-4 transition hover:underline';
 const label = 'mb-1.5 block text-xs font-medium text-night/60';
-const heading = 'text-xl font-semibold tracking-tight text-navy';
+const heading = 'text-base font-semibold text-navy';
 const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
 
 @Component({
@@ -32,12 +32,12 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
     @switch (step) {
       @case ('credentials') {
         <form class="flex flex-col" (ngSubmit)="submitCredentials()">
-          <header class="mb-8 text-center">
-            <h2 [class]="heading">Welcome back</h2>
-            <p [class]="sub">Select your department and enter your credentials.</p>
+          <header class="mb-6">
+            <h2 [class]="heading">Sign in</h2>
+            <p [class]="sub">Choose your department and sign in. You will confirm with a one-time code.</p>
           </header>
 
-          <div class="mb-5">
+          <div class="mb-4">
             <label [class]="label" for="department">Department</label>
             <!-- appearance-none + our own chevron: the native arrow sits flush against the border -->
             <div class="relative">
@@ -52,13 +52,13 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
             </div>
           </div>
 
-          <div class="mb-5">
+          <div class="mb-4">
             <label [class]="label" for="username">Username</label>
             <input id="username" [class]="field" placeholder="eg. akash.p" autocomplete="username" appAutofocus
               name="username" [(ngModel)]="username" />
           </div>
 
-          <div class="mb-7">
+          <div class="mb-6">
             <label [class]="label" for="password">Password</label>
             <div class="relative">
               <input id="password" [class]="field + ' pr-11'" [type]="show ? 'text' : 'password'" placeholder="Enter your password"
@@ -71,30 +71,29 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
                 </svg>
               </button>
             </div>
-            <!-- after the input, so Tab from Username lands on Password, not on this link -->
-            <button type="button" [class]="link + ' mt-2.5 block'" (click)="go('forgot')">Forgot password?</button>
           </div>
 
           <button [class]="primary" [disabled]="busy || !username || !password">{{ busy ? 'Signing in…' : 'Sign in' }}</button>
-          <p class="mt-6 text-center text-xs text-slate">Protected by one-time password verification.</p>
+          <!-- after Sign in, so Tab goes Username -> Password -> Sign in -->
+          <button type="button" [class]="link + ' mt-5 self-start'" (click)="go('forgot')">Forgot password?</button>
         </form>
       }
       @case ('otp') {
         <form class="flex flex-col" (ngSubmit)="submitOtp()">
-          <header class="mb-8 text-center">
+          <header class="mb-6">
             <h2 [class]="heading">Verify your identity</h2>
             <p [class]="sub">Enter the 6-digit code sent to your registered email address.</p>
           </header>
-          <input [class]="field + ' mb-7 text-center text-lg tracking-[0.6em]'" inputmode="numeric" maxlength="6"
+          <input [class]="field + ' mb-6 text-center text-lg tracking-[0.6em]'" inputmode="numeric" maxlength="6"
             autocomplete="one-time-code" appAutofocus placeholder="••••••" aria-label="One-time password"
             name="otp" [ngModel]="otp" (ngModelChange)="otp = $event.replace(digitsOnly, '')" />
           <button [class]="primary" [disabled]="busy || otp.length !== 6">{{ busy ? 'Verifying…' : 'Verify and continue' }}</button>
-          <button type="button" [class]="link + ' mt-6 self-center'" (click)="go('credentials')">Back to sign in</button>
+          <button type="button" [class]="link + ' mt-5 self-center'" (click)="go('credentials')">Back to sign in</button>
         </form>
       }
       @case ('forgot') {
         <form class="flex flex-col" (ngSubmit)="submitForgot()">
-          <header class="mb-8 text-center">
+          <header class="mb-6">
             <h2 [class]="heading">Reset your password</h2>
             <p [class]="sub">We will email you a link to set a new password.</p>
           </header>
@@ -104,7 +103,7 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
               name="email" [(ngModel)]="email" />
           </div>
           <button [class]="primary" [disabled]="busy || !email">{{ busy ? 'Submitting…' : 'Send reset link' }}</button>
-          <button type="button" [class]="link + ' mt-6 self-center'" (click)="go('credentials')">Back to sign in</button>
+          <button type="button" [class]="link + ' mt-5 self-center'" (click)="go('credentials')">Back to sign in</button>
         </form>
       }
       @case ('forgot-sent') {
@@ -127,7 +126,6 @@ const sub = 'mt-1.5 text-xs leading-relaxed text-slate';
 export class LoginFormComponent {
   @Input({ required: true }) department!: Department;
   @Output() departmentChange = new EventEmitter<Department>();
-  @Output() stepChange = new EventEmitter<Step>();
 
   private router = inject(Router);
   readonly departments = DEPARTMENTS;
@@ -152,7 +150,6 @@ export class LoginFormComponent {
   go(s: Step) {
     this.error = '';
     this.step = s;
-    this.stepChange.emit(s);
   }
 
   private async run(fn: () => Promise<void>) {
