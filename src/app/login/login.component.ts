@@ -24,6 +24,10 @@ const STEPS: { step: Step | null; title: string; note: string }[] = [
           <!-- Navy panel — same navy as the portal sidebar -->
           <section class="relative hidden flex-col justify-end gap-10 p-10 xl:p-12 lg:flex
             bg-[radial-gradient(at_15%_10%,#0a6b7d_0px,transparent_55%),radial-gradient(at_90%_5%,#024f73_0px,transparent_45%),linear-gradient(155deg,#023e63,#012a45)] text-white">
+            <!-- app-logo is display:contents, so these sit on the svg: self-start stops it
+                 stretching to the column width, mb-auto holds it at the top of the panel -->
+            <app-logo tone="light" svgClass="h-8 w-auto self-start mb-auto" />
+
             <div class="grid gap-x-10 gap-y-5 lg:grid-cols-[1.45fr_1fr] lg:items-end">
               <h1 class="text-[2.1rem] font-semibold leading-[1.12] tracking-tight xl:text-[2.5rem]">
                 Secure access for every desk.
