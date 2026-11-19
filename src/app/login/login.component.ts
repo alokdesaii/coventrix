@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, QueryList, ViewChildren, inject } from '@angular/core';
 import type { Department } from '../api/auth';
 import { LogoComponent } from '../shared/logo.component';
 import { LoginFormComponent } from './login-form.component';
@@ -11,55 +11,30 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
   standalone: true,
   imports: [LogoComponent, LoginFormComponent],
   styles: `
-    .glow {
+    .blob {
       position: absolute;
+      left: 0;
+      top: 0;
+      width: 38vmax;
+      height: 38vmax;
       border-radius: 9999px;
-      filter: blur(90px);
+      filter: blur(70px);
       mix-blend-mode: screen;
+      transition-property: transform;
+      transition-timing-function: ease-in-out;
       will-change: transform;
     }
-    .glow-a { width: 42vw; height: 42vw; left: -12vw; top: -14vw; background: #00bfb3; opacity: 0.22; animation: drift-a 24s ease-in-out infinite alternate; }
-    .glow-b { width: 36vw; height: 36vw; right: -10vw; top: 30%; background: #22d3ee; opacity: 0.14; animation: drift-b 30s ease-in-out infinite alternate; }
-    .glow-c { width: 30vw; height: 30vw; left: 30%; bottom: -16vw; background: #2dd4bf; opacity: 0.12; animation: drift-c 27s ease-in-out infinite alternate; }
-
-    /* a thin neon line that sweeps slowly across now and then */
-    .streak {
-      position: absolute;
-      left: -40%;
-      top: 38%;
-      width: 40%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #5eead4, transparent);
-      box-shadow: 0 0 12px 1px #2dd4bf66;
-      opacity: 0;
-      transform: rotate(-8deg);
-      animation: sweep 14s ease-in-out infinite 3s;
-    }
-
-    @keyframes drift-a { to { transform: translate(14vw, 10vh) scale(1.15); } }
-    @keyframes drift-b { to { transform: translate(-12vw, -14vh) scale(0.9); } }
-    @keyframes drift-c { to { transform: translate(-16vw, -8vh) scale(1.2); } }
-    @keyframes sweep {
-      0% { left: -40%; opacity: 0; }
-      10% { opacity: 0.7; }
-      40% { left: 110%; opacity: 0; }
-      100% { left: 110%; opacity: 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .glow, .streak { animation: none; }
-    }
+    .blob-a { background: radial-gradient(circle at 35% 35%, #5eead4, #00bfb3 40%, transparent 70%); opacity: 0.55; }
+    .blob-b { background: radial-gradient(circle at 60% 40%, #22d3ee, #0ea5e9 45%, transparent 70%); opacity: 0.4; }
   `,
   template: `
     <!-- Full-bleed navy gradient (the sidebar navy with a teal glow); white card centred on top -->
     <main class="relative isolate flex min-h-dvh flex-col items-center overflow-hidden px-4 pt-10 text-white sm:px-6
       bg-[radial-gradient(at_15%_10%,#0a6b7d_0px,transparent_55%),radial-gradient(at_90%_5%,#024f73_0px,transparent_45%),linear-gradient(155deg,#023e63,#012a45)]">
-      <!-- Slow neon glows drifting behind everything; static under prefers-reduced-motion -->
+      <!-- Neon blobs that wander to random spots (positions set in code); still under prefers-reduced-motion -->
       <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <span class="glow glow-a"></span>
-        <span class="glow glow-b"></span>
-        <span class="glow glow-c"></span>
-        <span class="streak"></span>
+        <span #blob class="blob blob-a"></span>
+        <span #blob class="blob blob-b"></span>
       </div>
 
       <svg viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" class="absolute inset-x-0 bottom-0 -z-10 h-2/5 w-full">
@@ -126,7 +101,11 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
     </main>
   `,
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit, OnDestroy {
+  @ViewChildren('blob') private blobs!: QueryList<ElementRef<HTMLElement>>;
+  private zone = inject(NgZone);
+  private timer?: ReturnType<typeof setInterval>;
+
   readonly badges = BADGES;
   readonly poweredBy = POWERED_BY;
   readonly site = 'https://coventrix.harbourandhills.com';
@@ -136,4 +115,34 @@ export class LoginComponent {
   readonly dot = 'mt-[7px] size-1 shrink-0 rounded-full bg-teal';
 
   department: Department = 'bd-cbd';
+
+  ngAfterViewInit() {
+    // Start each blob somewhere random without animating there
+    this.blobs.forEach(({ nativeElement: el }) => {
+      el.style.transitionDuration = '0s';
+      this.wander(el);
+    });
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Outside Angular so the timer never triggers change detection
+    this.zone.runOutsideAngular(() => {
+      const move = () => this.blobs.forEach(({ nativeElement: el }) => {
+        el.style.transitionDuration = `${10 + Math.random() * 6}s`;
+        this.wander(el);
+      });
+      setTimeout(move, 50);
+      this.timer = setInterval(move, 11000);
+    });
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.timer);
+  }
+
+  private wander(el: HTMLElement) {
+    const x = -15 + Math.random() * 85;
+    const y = -15 + Math.random() * 75;
+    const s = 0.75 + Math.random() * 0.55;
+    el.style.transform = `translate(${x}vw, ${y}vh) scale(${s})`;
+  }
 }
