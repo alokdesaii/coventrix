@@ -18,14 +18,14 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
       width: 38vmax;
       height: 38vmax;
       border-radius: 9999px;
-      filter: blur(70px);
+      filter: blur(100px);
       mix-blend-mode: screen;
       transition-property: transform;
       transition-timing-function: ease-in-out;
       will-change: transform;
     }
-    .blob-a { background: radial-gradient(circle at 35% 35%, #5eead4, #00bfb3 40%, transparent 70%); opacity: 0.55; }
-    .blob-b { background: radial-gradient(circle at 60% 40%, #22d3ee, #0ea5e9 45%, transparent 70%); opacity: 0.4; }
+    .blob-a { background: radial-gradient(circle at 40% 40%, #2dd4bf, #0e7490 45%, transparent 72%); opacity: 0.35; }
+    .blob-b { background: radial-gradient(circle at 55% 45%, #38bdf8, #1d4ed8 45%, transparent 72%); opacity: 0.3; }
   `,
   template: `
     <!-- Full-bleed navy gradient (the sidebar navy with a teal glow); white card centred on top -->
@@ -127,11 +127,11 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     // Outside Angular so the timer never triggers change detection
     this.zone.runOutsideAngular(() => {
       const move = () => this.blobs.forEach(({ nativeElement: el }) => {
-        el.style.transitionDuration = `${10 + Math.random() * 6}s`;
+        el.style.transitionDuration = `${5 + Math.random() * 3}s`;
         this.wander(el);
       });
       setTimeout(move, 50);
-      this.timer = setInterval(move, 11000);
+      this.timer = setInterval(move, 5500);
     });
   }
 
