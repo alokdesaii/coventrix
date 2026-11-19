@@ -28,31 +28,31 @@ const POWERED_BY = ['qor3-plus-white', 'edge-plus', 'conentrix', 'digiqor-plus',
         </div>
       </div>
 
-      <!-- Full-width footer: three equal columns, then a bottom bar -->
+      <!-- Full-width footer -->
       <footer class="w-full border-t border-white/10 pt-10 text-xs leading-relaxed text-white/60 lg:px-6">
-        <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-[1fr_auto_auto] lg:gap-14">
-          <section>
-            <h2 [class]="heading">Security information</h2>
-            <ul class="space-y-2.5">
-              <li [class]="item"><span [class]="dot"></span><span>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</span></li>
-              <li [class]="item"><span [class]="dot"></span><span>Never share your PIN, OTP, User ID or Password with anyone.</span></li>
-              <li [class]="item"><span [class]="dot"></span><span>Do not enter login or other sensitive information in any pop up window.</span></li>
-              <li [class]="item"><span [class]="dot"></span><span>The URL is inaccessible in sanctioned/embargoed countries.</span></li>
-            </ul>
-          </section>
+        <!-- Symmetric by construction: four equal text cells, then two equal centred logo halves -->
+        <section>
+          <h2 [class]="heading">Security information</h2>
+          <ul class="grid gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+            <li [class]="item"><span [class]="dot"></span><span>Ensure the address bar starts with <a class="font-medium text-white hover:underline" [href]="site">{{ site }}</a>.</span></li>
+            <li [class]="item"><span [class]="dot"></span><span>Never share your PIN, OTP, User ID or Password with anyone.</span></li>
+            <li [class]="item"><span [class]="dot"></span><span>Do not enter login or other sensitive information in any pop up window.</span></li>
+            <li [class]="item"><span [class]="dot"></span><span>The URL is inaccessible in sanctioned/embargoed countries.</span></li>
+          </ul>
+        </section>
 
-          <section>
+        <div class="mt-10 grid gap-10 border-t border-white/10 pt-10 lg:grid-cols-2">
+          <section class="text-center">
             <h2 [class]="heading">Digital security</h2>
-            <ul class="grid w-fit grid-cols-3 gap-2.5">
+            <ul class="flex flex-wrap items-center justify-center gap-2.5">
               @for (b of badges; track b) {
                 <li><img [src]="'assets/login/' + b + '.svg'" [alt]="b.replaceAll('-', ' ')" class="h-9 w-auto" /></li>
               }
             </ul>
           </section>
-
-          <section class="md:col-span-2 lg:col-span-1">
+          <section class="text-center">
             <h2 [class]="heading">Powered by</h2>
-            <ul class="flex flex-wrap items-center gap-2.5 lg:flex-nowrap">
+            <ul class="flex flex-wrap items-center justify-center gap-2.5">
               @for (p of poweredBy; track p) {
                 <li><img [src]="'assets/login/' + p + '.svg'" [alt]="p.replaceAll('-', ' ')" class="h-9 w-auto" /></li>
               }
